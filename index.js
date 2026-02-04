@@ -8,6 +8,7 @@ const app = express();
 const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
+const expressLayouts = require('express-ejs-layouts');
 
 // Import controllers and their middleware (if needed for direct app.use)
 const { InstructorController, requireInstructorLogin } = require("./controllers/instructorController");
@@ -25,13 +26,16 @@ const quizRoutes = require('./routes/quizRoutes');
 const answerRoutes = require('./routes/quizAnswerRoutes');
 const questionRoutes = require('./routes/quizQuestionRoutes');
 const resultRoutes = require('./routes/quizResultRoutes');
+const viewRoutes = require('./routes/viewRoutes');
 
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
+app.use(expressLayouts);
+app.set('layout', false); // disable global default; enable per-render when needed
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use(cors());
@@ -68,6 +72,9 @@ app.use('/instructor', instructorRoutes);
 
 // Student-specific dashboard
 app.use('/student', studentRoutes);
+
+// New UI routes (dashboards + entity pages)
+app.use('/', viewRoutes);
 
 // Authentication routes (login, signup, logout)
 app.use('/', authRoutes);
@@ -107,15 +114,6 @@ app.get('/enrollement', (req, res) => {
     console.log('[GET /enrollement] Rendering createEnrollement.ejs');
     try { res.render('createEnrollement.ejs', { user: req.session.user }); } catch (error) { console.error('Error in enrollement:', error); res.status(500).send('Internal Server Error'); }
 });
-app.get('/users', (req, res) => {
-    console.log('[GET /users] Handling users route');
-    if (req.session.user && req.session.user.userType === 'admin') {
-        try { res.render('users.ejs', { user: req.session.user, users: [], errorMessage: null }); } catch (e) { console.error('Error in getting users :', e); res.status(500).send('Internal Server Error'); }
-    } else {
-        req.flash('error', 'You must be an admin to view this page.');
-        res.redirect('/login');
-    }
-});
 app.get('/changePassword', (req, res) => {
     console.log('[GET /changePassword] Rendering changePassword.ejs');
     try { res.render('changePassword.ejs', { user: req.session.user }); } catch (error) { console.error('Error changing pass:', error); res.status(500).send('Internal Server Error'); }
@@ -128,13 +126,8 @@ app.get('/editUser', (req, res) => {
 
 // Catch-all Home Page (Lowest priority for frontend routes)
 app.get('/', async (req, res) => {
-    console.log('[GET /] Rendering home.ejs (This should only happen if no other route matched)');
-    try {
-        res.render('home.ejs', { title: 'Home', user: req.session.user });
-    } catch (error) {
-        console.error('Error fetching data for home page:', error);
-        res.status(500).send('Internal Server Error');
-    }
+    console.log('[GET /] Redirecting to /dashboard');
+    return res.redirect('/dashboard');
 });
 
 // Global Error Handling Middleware (always last)

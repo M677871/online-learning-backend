@@ -1,0 +1,69 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Welcome back</p>
+    <h1>Learning Platform Overview</h1>
+    <p class="muted">Track everything in one clean, responsive dashboard.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/courses"><i class="bi bi-plus-lg"></i> New course</a>
+    <a class="btn" href="/quizzes"><i class="bi bi-question-circle"></i> Manage quizzes</a>
+  </div>
+</section>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Courses</div>
+    <h3><%= stats.courses %></h3>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Students</div>
+    <h3><%= stats.students %></h3>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Instructors</div>
+    <h3><%= stats.instructors %></h3>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Quizzes</div>
+    <h3><%= stats.quizzes %></h3>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Recent courses</h5>
+      <a class="pill" href="/courses">View all</a>
+    </div>
+    <div class="list-group">
+      <% if (recentCourses && recentCourses.length) { %>
+        <% recentCourses.forEach(course => { %>
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <div class="fw-bold"><%= course.courseName %></div>
+              <div class="muted">ID: <%= course.courseId %></div>
+            </div>
+            <span class="badge">Category #<%= course.categorieId %></span>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p class="muted">No courses yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h5>Quick links</h5>
+    <div class="sidebar">
+      <h4>Entities</h4>
+      <div>
+        <a href="/users"><i class="bi bi-shield-lock me-2"></i>Users</a>
+        <a href="/students"><i class="bi bi-people me-2"></i>Students</a>
+        <a href="/instructors"><i class="bi bi-person-badge me-2"></i>Instructors</a>
+        <a href="/categories"><i class="bi bi-folder me-2"></i>Categories</a>
+        <a href="/enrollments"><i class="bi bi-bookmark-check me-2"></i>Enrollments</a>
+        <a href="/materials"><i class="bi bi-collection-play me-2"></i>Materials</a>
+      </div>
+    </div>
+  </div>
+</div>

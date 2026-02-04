@@ -1,60 +1,14 @@
-<footer class="bg-white py-3 border-top border-2 border-primary-subtle">
-  <div class="container">
-    <div class="row align-items-center g-4">
-      
-      <!-- Branding Column -->
-      <div class="col-md-4 text-center text-md-start">
-        <span class="fs-4 fw-bold text-primary">LearnOnline</span>
-        <p class="small text-muted mb-0">Empowering future learners</p>
-    </div>
-
-      <!-- Social Links -->
-      <div class="col-md-4 text-center">
-        <div class="d-flex justify-content-center gap-3">
-          <a href="mailto:support@learnonline.com" 
-             target="_blank" 
-             class="text-muted fs-5 hover-lift"
-             aria-label="Email">
-            <i class="bi bi-envelope"></i>
-          </a>
-          <a href="https://facebook.com/yourpage" 
-             target="_blank" 
-             class="text-muted fs-5 hover-lift"
-             aria-label="Facebook">
-            <i class="bi bi-facebook"></i>
-          </a>
-          <a href="https://instagram.com/yourpage" 
-             target="_blank" 
-             class="text-muted fs-5 hover-lift"
-             aria-label="Instagram">
-            <i class="bi bi-instagram"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Copyright -->
-      <div class="col-md-4 text-center text-md-end">
-        <p class="small text-muted mb-0">
-          © <%= new Date().getFullYear() %> LearnOnline. All rights reserved.
-        </p>
-      </div>
-
-    </div>
+<footer class="footer">
+  <div class="brand">
+    <span class="brand-badge">LO</span>
+    <span>LearnOnline</span>
+  </div>
+  <div class="muted">
+    &copy; <%= new Date().getFullYear() %> LearnOnline. Crafted for modern learning.
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/courses">Courses</a>
+    <a class="nav-link" href="/quizzes">Quizzes</a>
   </div>
 </footer>
-
-<style>
- 
-  .hover-lift {
-    transition: all 0.2s ease;
-  }
-  
-  .hover-lift:hover {
-    color: #0d6efd !important;
-    transform: translateY(-3px);
-  }
-
-  .border-primary-subtle {
-    border-color: #e3f2fd !important;
-  }
-</style>

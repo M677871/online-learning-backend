@@ -1,0 +1,27 @@
+<%
+  const links = sidebarLinks && sidebarLinks.length ? sidebarLinks : [
+    { href: '/dashboard', label: 'Overview', icon: 'bi-speedometer2' },
+    { href: '/courses', label: 'Courses', icon: 'bi-journal-bookmark' },
+    { href: '/students', label: 'Students', icon: 'bi-people' },
+    { href: '/instructors', label: 'Instructors', icon: 'bi-person-badge' },
+    { href: '/categories', label: 'Categories', icon: 'bi-folder' },
+    { href: '/quizzes', label: 'Quizzes', icon: 'bi-question-circle' },
+    { href: '/enrollments', label: 'Enrollments', icon: 'bi-bookmark-check' },
+    { href: '/materials', label: 'Materials', icon: 'bi-collection-play' },
+    { href: '/results', label: 'Quiz Results', icon: 'bi-graph-up' },
+    { href: '/users', label: 'Users', icon: 'bi-shield-lock' }
+  ];
+  const current = typeof currentPath !== 'undefined' ? currentPath : '';
+%>
+
+<aside class="sidebar">
+  <h4>Navigation</h4>
+  <div>
+    <% links.forEach(link => { %>
+      <a href="<%= link.href %>" class="<%= current === link.href ? 'active' : '' %>">
+        <% if (link.icon) { %><i class="bi <%= link.icon %> me-2"></i><% } %>
+        <%= link.label %>
+      </a>
+    <% }) %>
+  </div>
+</aside>

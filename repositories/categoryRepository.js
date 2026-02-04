@@ -9,6 +9,7 @@ const Instructor = require("../models/instructorModel");
  * and querying of categories, as well as related data such as courses and instructors.
  * 
  * @class
+ * 
  */
 
 class CategoryRepository {

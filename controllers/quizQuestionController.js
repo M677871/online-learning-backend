@@ -152,6 +152,15 @@ class QuizQuestionController {
           });
         }
       }
+      static async createQuestionForQuiz(req, res) {
+        try {
+          const { quizId } = req.params;
+          res.render("createQuizQuestion.ejs", { error: null, quizId: quizId });
+        } catch (error) {
+          console.error("Error rendering question form:", error);
+          return res.status(500).send("Internal Server Error");
+        }
+      }
 
 }
 
