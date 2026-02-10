@@ -3,7 +3,7 @@ const ApiError = require('../utils/ApiError');
 /**
  * Global error handler — returns consistent JSON responses.
  */
-function errorHandler(err, req, res, _next) {
+const errorHandler = (err, req, res, _next) => {
   // If it's a known ApiError, use its status code
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({

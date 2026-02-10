@@ -6,7 +6,7 @@ const ApiError = require('../../utils/ApiError');
  * Reads JWT from Authorization: Bearer <token> header.
  * Sets req.user = { id, email, userType }.
  */
-function authenticate(req, res, next) {
+const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

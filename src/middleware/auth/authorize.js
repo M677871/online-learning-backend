@@ -6,7 +6,7 @@ const ApiError = require('../../utils/ApiError');
  *   Empty array [] = authenticated only, any role accepted.
  * @returns {Function} Express middleware
  */
-function authorize(allowedRoles = []) {
+const authorize = (allowedRoles = []) => {
   return (req, _res, next) => {
     if (!req.user) {
       throw ApiError.unauthorized('Authentication required');
