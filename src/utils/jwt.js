@@ -14,7 +14,7 @@ if (!JWT_SECRET) {
  * @param {{ id: number, email: string, userType: string }} payload
  * @returns {string} signed JWT
  */
-function signAccessToken(payload) {
+const signAccessToken = (payload) => {
   return jwt.sign(
     { id: payload.id, email: payload.email, userType: payload.userType },
     JWT_SECRET,
@@ -28,7 +28,7 @@ function signAccessToken(payload) {
  * @returns {object} decoded payload
  * @throws {jwt.JsonWebTokenError | jwt.TokenExpiredError}
  */
-function verifyAccessToken(token) {
+const verifyAccessToken = (token) => {
   return jwt.verify(token, JWT_SECRET, { issuer: JWT_ISSUER });
 }
 
