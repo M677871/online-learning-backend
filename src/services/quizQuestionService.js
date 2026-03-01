@@ -1,40 +1,60 @@
-const quizQuestionRepository = require('../repositories/quizQuestionRepository');
-const quizRepository = require('../repositories/quizRepository');
-const ApiError = require('../utils/ApiError');
+const QuizQuestionRepository = require('../domain/repositories/QuizQuestionRepository');
+const QuizRepository = require('../domain/repositories/QuizRepository');
+const ApiError = require('../middlewares/ApiError');
 
 class QuizQuestionService {
-  static async getAllQuizQuestions() {
-    return quizQuestionRepository.getAllQuizQuestions();
-  }
-
-  static async getQuizQuestionById(id) {
-    const q = await quizQuestionRepository.getQuizQuestionById(id);
-    if (!q) throw ApiError.notFound(`Quiz Question ID ${id} not found`);
-    return q;
-  }
-
-  static async createQuizQuestion(data) {
-    if (!(await quizRepository.quizExists(data.quizId))) {
-      throw ApiError.notFound(`Quiz ID ${data.quizId} not found`);
+    static async getAllQuizQuestions() {
+        try {
+            return await QuizQuestionRepository.getAllQuizQuestions();
+        } catch (e) {
+            throw new Error(e);
+        }
     }
-    const id = await quizQuestionRepository.createQuizQuestion(data);
-    return { questionId: id, ...data };
-  }
 
-  static async updateQuizQuestion(id, data) {
-    if (!(await quizQuestionRepository.questionExists(id))) {
-      throw ApiError.notFound(`Quiz Question ID ${id} not found`);
+    static async getQuizQuestionById(id) {
+        try {
+            const q = await QuizQuestionRepository.getQuizQuestionById(id);
+            if (!q) throw ApiError.notFound(`Quiz Question ID ${id} not found`);
+            return q;
+        } catch (e) {
+            throw e;
+        }
     }
-    await quizQuestionRepository.updateQuizQuestion(id, data);
-    return { questionId: id, ...data };
-  }
 
-  static async deleteQuizQuestion(id) {
-    if (!(await quizQuestionRepository.questionExists(id))) {
-      throw ApiError.notFound(`Quiz Question ID ${id} not found`);
+    static async createQuizQuestion(data) {
+        try {
+            if (!(await QuizRepository.quizExists(data.quizId))) {
+                throw ApiError.notFound(`Quiz ID ${data.quizId} not found`);
+            }
+            const id = await QuizQuestionRepository.createQuizQuestion(data);
+            return await QuizQuestionRepository.getQuizQuestionById(id);
+        } catch (e) {
+            throw e;
+        }
     }
-    await quizQuestionRepository.deleteQuizQuestion(id);
-  }
+
+    static async updateQuizQuestion(id, data) {
+        try {
+            if (!(await QuizQuestionRepository.questionExists(id))) {
+                throw ApiError.notFound(`Quiz Question ID ${id} not found`);
+            }
+            await QuizQuestionRepository.updateQuizQuestion(id, data);
+            return await QuizQuestionRepository.getQuizQuestionById(id);
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    static async deleteQuizQuestion(id) {
+        try {
+            if (!(await QuizQuestionRepository.questionExists(id))) {
+                throw ApiError.notFound(`Quiz Question ID ${id} not found`);
+            }
+            await QuizQuestionRepository.deleteQuizQuestion(id);
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = QuizQuestionService;

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const CourseMaterialController = require('../controllers/courseMaterialController');
-const authenticate = require('../middleware/auth/authenticate');
-const authorize = require('../middleware/auth/authorize');
-const { validateMaterial, validateMaterialId } = require('../validators/material.dto');
+const CourseMaterialController = require('../controllers/CourseMaterialController');
+const authenticate = require('../middlewares/auth/authenticate');
+const authorize = require('../middlewares/auth/authorize');
+const { validateMaterial, validateMaterialId } = require('../validators/materialValidators');
 
 // Public: anyone can browse materials
 router.get('/', CourseMaterialController.getAll);

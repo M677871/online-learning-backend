@@ -1,43 +1,63 @@
-const courseMaterialRepository = require('../repositories/courseMaterialRepository');
-const courseRepository = require('../repositories/courseRepository');
-const ApiError = require('../utils/ApiError');
+const CourseMaterialRepository = require('../domain/repositories/CourseMaterialRepository');
+const CourseRepository = require('../domain/repositories/CourseRepository');
+const ApiError = require('../middlewares/ApiError');
 
 class CourseMaterialService {
-  static async getAllCourseMaterials() {
-    return courseMaterialRepository.getAllCourseMaterials();
-  }
-
-  static async getCourseMaterialById(id) {
-    const mat = await courseMaterialRepository.getCourseMaterialById(id);
-    if (!mat) throw ApiError.notFound(`Course Material ID ${id} not found`);
-    return mat;
-  }
-
-  static async createCourseMaterial(data) {
-    if (!(await courseRepository.courseExistsById(data.courseId))) {
-      throw ApiError.notFound(`Course ID ${data.courseId} not found`);
+    static async getAllCourseMaterials() {
+        try {
+            return await CourseMaterialRepository.getAllCourseMaterials();
+        } catch (e) {
+            throw new Error(e);
+        }
     }
-    const id = await courseMaterialRepository.createCourseMaterial(data);
-    return { materialId: id, ...data };
-  }
 
-  static async updateCourseMaterial(id, data) {
-    if (!(await courseMaterialRepository.materialExists(id))) {
-      throw ApiError.notFound(`Course Material ID ${id} not found`);
+    static async getCourseMaterialById(id) {
+        try {
+            const mat = await CourseMaterialRepository.getCourseMaterialById(id);
+            if (!mat) throw ApiError.notFound(`Course Material ID ${id} not found`);
+            return mat;
+        } catch (e) {
+            throw e;
+        }
     }
-    if (!(await courseRepository.courseExistsById(data.courseId))) {
-      throw ApiError.notFound(`Course ID ${data.courseId} not found`);
-    }
-    await courseMaterialRepository.updateCourseMaterial(id, data);
-    return { materialId: id, ...data };
-  }
 
-  static async deleteCourseMaterial(id) {
-    if (!(await courseMaterialRepository.materialExists(id))) {
-      throw ApiError.notFound(`Course Material ID ${id} not found`);
+    static async createCourseMaterial(data) {
+        try {
+            if (!(await CourseRepository.courseExistsById(data.courseId))) {
+                throw ApiError.notFound(`Course ID ${data.courseId} not found`);
+            }
+            const id = await CourseMaterialRepository.createCourseMaterial(data);
+            return await CourseMaterialRepository.getCourseMaterialById(id);
+        } catch (e) {
+            throw e;
+        }
     }
-    await courseMaterialRepository.deleteCourseMaterial(id);
-  }
+
+    static async updateCourseMaterial(id, data) {
+        try {
+            if (!(await CourseMaterialRepository.materialExists(id))) {
+                throw ApiError.notFound(`Course Material ID ${id} not found`);
+            }
+            if (!(await CourseRepository.courseExistsById(data.courseId))) {
+                throw ApiError.notFound(`Course ID ${data.courseId} not found`);
+            }
+            await CourseMaterialRepository.updateCourseMaterial(id, data);
+            return await CourseMaterialRepository.getCourseMaterialById(id);
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    static async deleteCourseMaterial(id) {
+        try {
+            if (!(await CourseMaterialRepository.materialExists(id))) {
+                throw ApiError.notFound(`Course Material ID ${id} not found`);
+            }
+            await CourseMaterialRepository.deleteCourseMaterial(id);
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = CourseMaterialService;

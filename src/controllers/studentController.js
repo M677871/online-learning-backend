@@ -1,38 +1,74 @@
-const studentService = require('../services/studentService');
-const asyncHandler = require('../utils/asyncHandler');
+const StudentService = require('../services/StudentService');
+const StudentDTO = require('../domain/dto/StudentDTO');
 
 class StudentController {
-  static getAll = asyncHandler(async (req, res) => {
-    const students = await studentService.getAllStudents();
-    res.json({ success: true, data: students });
-  });
+    static async getAll(req, res) {
+        try {
+            const students = await StudentService.getAllStudents();
+            const result = students.map(s => StudentDTO.fromEntity(s));
+            res.status(200).json({ success: true, data: result });
+        } catch (e) {
+            console.error('Error in StudentController.getAll', e.message);
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
 
-  static getById = asyncHandler(async (req, res) => {
-    const student = await studentService.getStudentById(req.params.id);
-    res.json({ success: true, data: student });
-  });
+    static async getById(req, res) {
+        try {
+            const student = await StudentService.getStudentById(req.params.id);
+            res.status(200).json({ success: true, data: StudentDTO.fromEntity(student) });
+        } catch (e) {
+            console.error('Error in StudentController.getById', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static create = asyncHandler(async (req, res) => {
-    const { userId, stuFName, stuLName, dob, profilePicture } = req.body;
-    const student = await studentService.createStudent({ userId, stuFName, stuLName, dob, profilePicture });
-    res.status(201).json({ success: true, data: student, message: 'Student created successfully' });
-  });
+    static async create(req, res) {
+        try {
+            const { userId, stuFName, stuLName, dob, profilePicture } = req.body;
+            const student = await StudentService.createStudent({ userId, stuFName, stuLName, dob, profilePicture });
+            res.status(201).json({ success: true, data: StudentDTO.fromEntity(student), message: 'Student created successfully' });
+        } catch (e) {
+            console.error('Error in StudentController.create', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static update = asyncHandler(async (req, res) => {
-    const { userId, stuFName, stuLName, dob, profilePicture } = req.body;
-    const student = await studentService.updateStudent(req.params.id, { userId, stuFName, stuLName, dob, profilePicture });
-    res.json({ success: true, data: student, message: 'Student updated successfully' });
-  });
+    static async update(req, res) {
+        try {
+            const { userId, stuFName, stuLName, dob, profilePicture } = req.body;
+            const student = await StudentService.updateStudent(req.params.id, { userId, stuFName, stuLName, dob, profilePicture });
+            res.status(200).json({ success: true, data: StudentDTO.fromEntity(student), message: 'Student updated successfully' });
+        } catch (e) {
+            console.error('Error in StudentController.update', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static remove = asyncHandler(async (req, res) => {
-    await studentService.deleteStudent(req.params.id);
-    res.json({ success: true, message: 'Student deleted successfully' });
-  });
+    static async remove(req, res) {
+        try {
+            await StudentService.deleteStudent(req.params.id);
+            res.status(200).json({ success: true, message: 'Student deleted successfully' });
+        } catch (e) {
+            console.error('Error in StudentController.remove', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static getCourses = asyncHandler(async (req, res) => {
-    const courses = await studentService.getStudentCourses(req.params.id);
-    res.json({ success: true, data: courses });
-  });
+    static async getCourses(req, res) {
+        try {
+            const courses = await StudentService.getStudentCourses(req.params.id);
+            res.status(200).json({ success: true, data: courses });
+        } catch (e) {
+            console.error('Error in StudentController.getCourses', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 }
 
 module.exports = StudentController;

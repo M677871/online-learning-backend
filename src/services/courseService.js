@@ -1,64 +1,92 @@
-const courseRepository = require('../repositories/courseRepository');
-const instructorRepository = require('../repositories/instructorRepository');
-const categoryRepository = require('../repositories/categoryRepository');
-const ApiError = require('../utils/ApiError');
+const CourseRepository = require('../domain/repositories/CourseRepository');
+const InstructorRepository = require('../domain/repositories/InstructorRepository');
+const CategoryRepository = require('../domain/repositories/CategoryRepository');
+const ApiError = require('../middlewares/ApiError');
 
 class CourseService {
-  static async getAllCourses() {
-    return courseRepository.getAllCourses();
-  }
+    static async getAllCourses() {
+        try {
+            return await CourseRepository.getAllCourses();
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
 
-  static async getCourseById(id) {
-    const course = await courseRepository.getCourseById(id);
-    if (!course) throw ApiError.notFound(`Course ID ${id} not found`);
-    return course;
-  }
+    static async getCourseById(id) {
+        try {
+            const course = await CourseRepository.getCourseById(id);
+            if (!course) throw ApiError.notFound(`Course ID ${id} not found`);
+            return course;
+        } catch (e) {
+            throw e;
+        }
+    }
 
-  static async createCourse(data) {
-    if (!(await instructorRepository.instructorExists(data.instructorId))) {
-      throw ApiError.notFound(`Instructor ID ${data.instructorId} not found`);
+    static async createCourse(data) {
+        try {
+            if (!(await InstructorRepository.instructorExists(data.instructorId))) {
+                throw ApiError.notFound(`Instructor ID ${data.instructorId} not found`);
+            }
+            if (!(await CategoryRepository.categoryExists(data.categorieId))) {
+                throw ApiError.notFound(`Category ID ${data.categorieId} not found`);
+            }
+            const id = await CourseRepository.createCourse(data);
+            return await CourseRepository.getCourseById(id);
+        } catch (e) {
+            throw e;
+        }
     }
-    if (!(await categoryRepository.categoryExists(data.categorieId))) {
-      throw ApiError.notFound(`Category ID ${data.categorieId} not found`);
-    }
-    const id = await courseRepository.createCourse(data);
-    return { courseId: id, ...data };
-  }
 
-  static async updateCourse(id, data) {
-    if (!(await courseRepository.courseExistsById(id))) {
-      throw ApiError.notFound(`Course ID ${id} not found`);
+    static async updateCourse(id, data) {
+        try {
+            if (!(await CourseRepository.courseExistsById(id))) {
+                throw ApiError.notFound(`Course ID ${id} not found`);
+            }
+            if (!(await InstructorRepository.instructorExists(data.instructorId))) {
+                throw ApiError.notFound(`Instructor ID ${data.instructorId} not found`);
+            }
+            if (!(await CategoryRepository.categoryExists(data.categorieId))) {
+                throw ApiError.notFound(`Category ID ${data.categorieId} not found`);
+            }
+            await CourseRepository.updateCourse(id, data);
+            return await CourseRepository.getCourseById(id);
+        } catch (e) {
+            throw e;
+        }
     }
-    if (!(await instructorRepository.instructorExists(data.instructorId))) {
-      throw ApiError.notFound(`Instructor ID ${data.instructorId} not found`);
-    }
-    if (!(await categoryRepository.categoryExists(data.categorieId))) {
-      throw ApiError.notFound(`Category ID ${data.categorieId} not found`);
-    }
-    await courseRepository.updateCourse(id, data);
-    return { courseId: id, ...data };
-  }
 
-  static async deleteCourse(id) {
-    if (!(await courseRepository.courseExistsById(id))) {
-      throw ApiError.notFound(`Course ID ${id} not found`);
+    static async deleteCourse(id) {
+        try {
+            if (!(await CourseRepository.courseExistsById(id))) {
+                throw ApiError.notFound(`Course ID ${id} not found`);
+            }
+            await CourseRepository.deleteCourse(id);
+        } catch (e) {
+            throw e;
+        }
     }
-    await courseRepository.deleteCourse(id);
-  }
 
-  static async getInstructorByCourseId(courseId) {
-    if (!(await courseRepository.courseExistsById(courseId))) {
-      throw ApiError.notFound(`Course ID ${courseId} not found`);
+    static async getInstructorByCourseId(courseId) {
+        try {
+            if (!(await CourseRepository.courseExistsById(courseId))) {
+                throw ApiError.notFound(`Course ID ${courseId} not found`);
+            }
+            return await CourseRepository.getInstructorByCourseId(courseId);
+        } catch (e) {
+            throw e;
+        }
     }
-    return courseRepository.getInstructorByCourseId(courseId);
-  }
 
-  static async getStudentsOfCourse(courseId) {
-    if (!(await courseRepository.courseExistsById(courseId))) {
-      throw ApiError.notFound(`Course ID ${courseId} not found`);
+    static async getStudentsOfCourse(courseId) {
+        try {
+            if (!(await CourseRepository.courseExistsById(courseId))) {
+                throw ApiError.notFound(`Course ID ${courseId} not found`);
+            }
+            return await CourseRepository.getStudentsOfCourse(courseId);
+        } catch (e) {
+            throw e;
+        }
     }
-    return courseRepository.getStudentsOfCourse(courseId);
-  }
 }
 
 module.exports = CourseService;

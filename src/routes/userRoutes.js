@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/userController');
-const authenticate = require('../middleware/auth/authenticate');
-const authorize = require('../middleware/auth/authorize');
-const { validateUser, validateUserId, validateUserEmail, validateUserLogin, validateUserChangePassword } = require('../validators/user.dto');
+const UserController = require('../controllers/UserController');
+const authenticate = require('../middlewares/auth/authenticate');
+const authorize = require('../middlewares/auth/authorize');
+const { validateUser, validateUserId, validateUserEmail, validateUserLogin, validateUserChangePassword } = require('../validators/userValidators');
 
 // Public routes
 router.post('/login', validateUserLogin, UserController.login);
-router.post('/', validateUser, UserController.create);                         // register
+router.post('/', validateUser, UserController.create);
 
 // Protected routes
 router.get('/', authenticate, authorize(['instructor']), UserController.getAll);

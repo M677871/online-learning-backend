@@ -1,33 +1,63 @@
-const quizService = require('../services/quizService');
-const asyncHandler = require('../utils/asyncHandler');
+const QuizService = require('../services/QuizService');
+const QuizDTO = require('../domain/dto/QuizDTO');
 
 class QuizController {
-  static getAll = asyncHandler(async (req, res) => {
-    const quizzes = await quizService.getAllQuizzes();
-    res.json({ success: true, data: quizzes });
-  });
+    static async getAll(req, res) {
+        try {
+            const quizzes = await QuizService.getAllQuizzes();
+            const result = quizzes.map(q => QuizDTO.fromEntity(q));
+            res.status(200).json({ success: true, data: result });
+        } catch (e) {
+            console.error('Error in QuizController.getAll', e.message);
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
 
-  static getById = asyncHandler(async (req, res) => {
-    const quiz = await quizService.getQuizById(req.params.id);
-    res.json({ success: true, data: quiz });
-  });
+    static async getById(req, res) {
+        try {
+            const quiz = await QuizService.getQuizById(req.params.id);
+            res.status(200).json({ success: true, data: QuizDTO.fromEntity(quiz) });
+        } catch (e) {
+            console.error('Error in QuizController.getById', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static create = asyncHandler(async (req, res) => {
-    const { courseId, quizName, quizDescription } = req.body;
-    const quiz = await quizService.createQuiz({ courseId, quizName, quizDescription });
-    res.status(201).json({ success: true, data: quiz, message: 'Quiz created successfully' });
-  });
+    static async create(req, res) {
+        try {
+            const { courseId, quizName, quizDescription } = req.body;
+            const quiz = await QuizService.createQuiz({ courseId, quizName, quizDescription });
+            res.status(201).json({ success: true, data: QuizDTO.fromEntity(quiz), message: 'Quiz created successfully' });
+        } catch (e) {
+            console.error('Error in QuizController.create', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static update = asyncHandler(async (req, res) => {
-    const { courseId, quizName, quizDescription } = req.body;
-    const quiz = await quizService.updateQuiz(req.params.id, { courseId, quizName, quizDescription });
-    res.json({ success: true, data: quiz, message: 'Quiz updated successfully' });
-  });
+    static async update(req, res) {
+        try {
+            const { courseId, quizName, quizDescription } = req.body;
+            const quiz = await QuizService.updateQuiz(req.params.id, { courseId, quizName, quizDescription });
+            res.status(200).json({ success: true, data: QuizDTO.fromEntity(quiz), message: 'Quiz updated successfully' });
+        } catch (e) {
+            console.error('Error in QuizController.update', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static remove = asyncHandler(async (req, res) => {
-    await quizService.deleteQuiz(req.params.id);
-    res.json({ success: true, message: 'Quiz deleted successfully' });
-  });
+    static async remove(req, res) {
+        try {
+            await QuizService.deleteQuiz(req.params.id);
+            res.status(200).json({ success: true, message: 'Quiz deleted successfully' });
+        } catch (e) {
+            console.error('Error in QuizController.remove', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 }
 
 module.exports = QuizController;

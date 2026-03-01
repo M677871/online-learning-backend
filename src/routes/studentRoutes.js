@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const StudentController = require('../controllers/studentController');
-const authenticate = require('../middleware/auth/authenticate');
-const authorize = require('../middleware/auth/authorize');
-const { validateStudent, validateStudentId } = require('../validators/student.dto');
+const StudentController = require('../controllers/StudentController');
+const authenticate = require('../middlewares/auth/authenticate');
+const authorize = require('../middlewares/auth/authorize');
+const { validateStudent, validateStudentId } = require('../validators/studentValidators');
 
 // All student routes require authentication
 router.get('/', authenticate, StudentController.getAll);

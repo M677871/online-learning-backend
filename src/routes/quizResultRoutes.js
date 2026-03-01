@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const QuizResultController = require('../controllers/quizResultController');
-const authenticate = require('../middleware/auth/authenticate');
-const { validateResult, validateResultId } = require('../validators/results.dto');
+const QuizResultController = require('../controllers/QuizResultController');
+const authenticate = require('../middlewares/auth/authenticate');
+const { validateResult, validateResultId } = require('../validators/resultValidators');
 
 // All result routes require authentication
 router.get('/', authenticate, QuizResultController.getAll);

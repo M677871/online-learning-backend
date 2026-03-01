@@ -1,44 +1,85 @@
-const categoryService = require('../services/categoryService');
-const asyncHandler = require('../utils/asyncHandler');
-const categorySerializer = require('../serializers/categorySerializer');
+const CategoryService = require('../services/CategoryService');
+const CategoryDTO = require('../domain/dto/CategoryDTO');
 
 class CategoryController {
-  static getAll = asyncHandler(async (req, res) => {
-    const categories = await categoryService.getAllCategories();
-    res.json({ success: true, data: categorySerializer.serializeList(categories) });
-  });
+    static async getAll(req, res) {
+        try {
+            const categories = await CategoryService.getAllCategories();
+            const result = categories.map(c => CategoryDTO.fromEntity(c));
+            res.status(200).json({ success: true, data: result });
+        } catch (e) {
+            console.error('Error in CategoryController.getAll', e.message);
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
 
-  static getById = asyncHandler(async (req, res) => {
-    const category = await categoryService.getCategoryById(req.params.id);
-    res.json({ success: true, data: categorySerializer.serialize(category) });
-  });
+    static async getById(req, res) {
+        try {
+            const category = await CategoryService.getCategoryById(req.params.id);
+            res.status(200).json({ success: true, data: CategoryDTO.fromEntity(category) });
+        } catch (e) {
+            console.error('Error in CategoryController.getById', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static create = asyncHandler(async (req, res) => {
-    const { categoryName, description } = req.body;
-    const category = await categoryService.createCategory({ categoryName, description });
-    res.status(201).json({ success: true, data: categorySerializer.serialize(category), message: 'Category created successfully' });
-  });
+    static async create(req, res) {
+        try {
+            const { categoryName, description } = req.body;
+            const category = await CategoryService.createCategory({ categoryName, description });
+            res.status(201).json({ success: true, data: CategoryDTO.fromEntity(category), message: 'Category created successfully' });
+        } catch (e) {
+            console.error('Error in CategoryController.create', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static update = asyncHandler(async (req, res) => {
-    const { categoryName, description } = req.body;
-    const category = await categoryService.updateCategory(req.params.id, { categoryName, description });
-    res.json({ success: true, data: categorySerializer.serialize(category), message: 'Category updated successfully' });
-  });
+    static async update(req, res) {
+        try {
+            const { categoryName, description } = req.body;
+            const category = await CategoryService.updateCategory(req.params.id, { categoryName, description });
+            res.status(200).json({ success: true, data: CategoryDTO.fromEntity(category), message: 'Category updated successfully' });
+        } catch (e) {
+            console.error('Error in CategoryController.update', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static remove = asyncHandler(async (req, res) => {
-    await categoryService.deleteCategory(req.params.id);
-    res.json({ success: true, message: 'Category deleted successfully' });
-  });
+    static async remove(req, res) {
+        try {
+            await CategoryService.deleteCategory(req.params.id);
+            res.status(200).json({ success: true, message: 'Category deleted successfully' });
+        } catch (e) {
+            console.error('Error in CategoryController.remove', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static getCourses = asyncHandler(async (req, res) => {
-    const courses = await categoryService.getCategoryCourses(req.params.id);
-    res.json({ success: true, data: courses });
-  });
+    static async getCourses(req, res) {
+        try {
+            const courses = await CategoryService.getCategoryCourses(req.params.id);
+            res.status(200).json({ success: true, data: courses });
+        } catch (e) {
+            console.error('Error in CategoryController.getCourses', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static getInstructors = asyncHandler(async (req, res) => {
-    const instructors = await categoryService.getCategoryInstructors(req.params.id);
-    res.json({ success: true, data: instructors });
-  });
+    static async getInstructors(req, res) {
+        try {
+            const instructors = await CategoryService.getCategoryInstructors(req.params.id);
+            res.status(200).json({ success: true, data: instructors });
+        } catch (e) {
+            console.error('Error in CategoryController.getInstructors', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 }
 
 module.exports = CategoryController;

@@ -1,33 +1,63 @@
-const quizAnswerService = require('../services/quizAnswerService');
-const asyncHandler = require('../utils/asyncHandler');
+const QuizAnswerService = require('../services/QuizAnswerService');
+const QuizAnswerDTO = require('../domain/dto/QuizAnswerDTO');
 
 class QuizAnswerController {
-  static getAll = asyncHandler(async (req, res) => {
-    const answers = await quizAnswerService.getAllQuizAnswers();
-    res.json({ success: true, data: answers });
-  });
+    static async getAll(req, res) {
+        try {
+            const answers = await QuizAnswerService.getAllQuizAnswers();
+            const result = answers.map(a => QuizAnswerDTO.fromEntity(a));
+            res.status(200).json({ success: true, data: result });
+        } catch (e) {
+            console.error('Error in QuizAnswerController.getAll', e.message);
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
 
-  static getById = asyncHandler(async (req, res) => {
-    const answer = await quizAnswerService.getQuizAnswerById(req.params.id);
-    res.json({ success: true, data: answer });
-  });
+    static async getById(req, res) {
+        try {
+            const answer = await QuizAnswerService.getQuizAnswerById(req.params.id);
+            res.status(200).json({ success: true, data: QuizAnswerDTO.fromEntity(answer) });
+        } catch (e) {
+            console.error('Error in QuizAnswerController.getById', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static create = asyncHandler(async (req, res) => {
-    const { questionId, answerText, answerType, isCorrect } = req.body;
-    const answer = await quizAnswerService.createQuizAnswer({ questionId, answerText, answerType, isCorrect });
-    res.status(201).json({ success: true, data: answer, message: 'Quiz answer created successfully' });
-  });
+    static async create(req, res) {
+        try {
+            const { questionId, answerText, answerType, isCorrect } = req.body;
+            const answer = await QuizAnswerService.createQuizAnswer({ questionId, answerText, answerType, isCorrect });
+            res.status(201).json({ success: true, data: QuizAnswerDTO.fromEntity(answer), message: 'Quiz answer created successfully' });
+        } catch (e) {
+            console.error('Error in QuizAnswerController.create', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static update = asyncHandler(async (req, res) => {
-    const { questionId, answerText, answerType, isCorrect } = req.body;
-    const answer = await quizAnswerService.updateQuizAnswer(req.params.id, { questionId, answerText, answerType, isCorrect });
-    res.json({ success: true, data: answer, message: 'Quiz answer updated successfully' });
-  });
+    static async update(req, res) {
+        try {
+            const { questionId, answerText, answerType, isCorrect } = req.body;
+            const answer = await QuizAnswerService.updateQuizAnswer(req.params.id, { questionId, answerText, answerType, isCorrect });
+            res.status(200).json({ success: true, data: QuizAnswerDTO.fromEntity(answer), message: 'Quiz answer updated successfully' });
+        } catch (e) {
+            console.error('Error in QuizAnswerController.update', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 
-  static remove = asyncHandler(async (req, res) => {
-    await quizAnswerService.deleteQuizAnswer(req.params.id);
-    res.json({ success: true, message: 'Quiz answer deleted successfully' });
-  });
+    static async remove(req, res) {
+        try {
+            await QuizAnswerService.deleteQuizAnswer(req.params.id);
+            res.status(200).json({ success: true, message: 'Quiz answer deleted successfully' });
+        } catch (e) {
+            console.error('Error in QuizAnswerController.remove', e.message);
+            const status = e.statusCode || 500;
+            res.status(status).json({ success: false, message: e.message });
+        }
+    }
 }
 
 module.exports = QuizAnswerController;

@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const EnrollmentController = require('../controllers/enrollmentController');
-const authenticate = require('../middleware/auth/authenticate');
-const { validateEnrollement, validateEnrollementId } = require('../validators/enrollement.dto');
+const EnrollmentController = require('../controllers/EnrollmentController');
+const authenticate = require('../middlewares/auth/authenticate');
+const { validateEnrollment, validateEnrollmentId } = require('../validators/enrollmentValidators');
 
 // All enrollment routes require authentication
 router.get('/', authenticate, EnrollmentController.getAll);
-router.get('/:id', authenticate, validateEnrollementId, EnrollmentController.getById);
-router.post('/', authenticate, validateEnrollement, EnrollmentController.create);
-router.put('/:id', authenticate, validateEnrollementId, validateEnrollement, EnrollmentController.update);
-router.delete('/:id', authenticate, validateEnrollementId, EnrollmentController.remove);
+router.get('/:id', authenticate, validateEnrollmentId, EnrollmentController.getById);
+router.post('/', authenticate, validateEnrollment, EnrollmentController.create);
+router.put('/:id', authenticate, validateEnrollmentId, validateEnrollment, EnrollmentController.update);
+router.delete('/:id', authenticate, validateEnrollmentId, EnrollmentController.remove);
 
 module.exports = router;

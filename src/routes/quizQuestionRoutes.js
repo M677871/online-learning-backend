@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const QuizQuestionController = require('../controllers/quizQuestionController');
-const authenticate = require('../middleware/auth/authenticate');
-const authorize = require('../middleware/auth/authorize');
-const { validateQuestion, validateQuestionId } = require('../validators/question.dto');
+const QuizQuestionController = require('../controllers/QuizQuestionController');
+const authenticate = require('../middlewares/auth/authenticate');
+const authorize = require('../middlewares/auth/authorize');
+const { validateQuestion, validateQuestionId } = require('../validators/questionValidators');
 
 // Public: anyone can view questions
 router.get('/', QuizQuestionController.getAll);

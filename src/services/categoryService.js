@@ -1,83 +1,80 @@
-const categoryRepository = require('../repositories/categoryRepository');
-const ApiError = require('../utils/ApiError');
-const categoryMapper = require('../mappers/categoryMapper');
+const CategoryRepository = require('../domain/repositories/CategoryRepository');
+const ApiError = require('../middlewares/ApiError');
 
 class CategoryService {
-  /**
-   * @returns {object[]} Array of domain category objects
-   */
-  static async getAllCategories() {
-    const rows = await categoryRepository.getAllCategories();
-    return categoryMapper.toDomainList(rows);
-  }
-
-  /**
-   * @param {number} id
-   * @returns {object} Domain category object
-   */
-  static async getCategoryById(id) {
-    const row = await categoryRepository.getCategoryById(id);
-    if (!row) throw ApiError.notFound(`Category ID ${id} not found`);
-    return categoryMapper.toDomain(row);
-  }
-
-  /**
-   * @param {{ categoryName: string, description: string }} data
-   * @returns {object} Domain category object
-   */
-  static async createCategory(data) {
-    const id = await categoryRepository.createCategory(data);
-    const row = await categoryRepository.getCategoryById(id);
-    return categoryMapper.toDomain(row);
-  }
-
-  /**
-   * @param {number} id
-   * @param {{ categoryName: string, description: string }} data
-   * @returns {object} Updated domain category object
-   */
-  static async updateCategory(id, data) {
-    if (!(await categoryRepository.categoryExists(id))) {
-      throw ApiError.notFound(`Category ID ${id} not found`);
+    static async getAllCategories() {
+        try {
+            return await CategoryRepository.getAllCategories();
+        } catch (e) {
+            throw new Error(e);
+        }
     }
-    await categoryRepository.updateCategory(id, data);
-    const row = await categoryRepository.getCategoryById(id);
-    return categoryMapper.toDomain(row);
-  }
 
-  /**
-   * @param {number} id
-   */
-  static async deleteCategory(id) {
-    if (!(await categoryRepository.categoryExists(id))) {
-      throw ApiError.notFound(`Category ID ${id} not found`);
+    static async getCategoryById(id) {
+        try {
+            const category = await CategoryRepository.getCategoryById(id);
+            if (!category) throw ApiError.notFound(`Category ID ${id} not found`);
+            return category;
+        } catch (e) {
+            throw e;
+        }
     }
-    await categoryRepository.deleteCategory(id);
-  }
 
-  /**
-   * Returns raw course rows (course mapper would be applied by courseService).
-   * @param {number} id
-   * @returns {object[]} Raw course rows
-   */
-  static async getCategoryCourses(id) {
-    if (!(await categoryRepository.categoryExists(id))) {
-      throw ApiError.notFound(`Category ID ${id} not found`);
+    static async createCategory(data) {
+        try {
+            const id = await CategoryRepository.createCategory(data);
+            const category = await CategoryRepository.getCategoryById(id);
+            return category;
+        } catch (e) {
+            throw e;
+        }
     }
-    return categoryRepository.getCategoryCourses(id);
-  }
 
-  /**
-   * Returns raw instructor rows (instructor mapper would be applied by instructorService).
-   * @param {number} id
-   * @returns {object[]} Raw instructor rows
-   */
-  static async getCategoryInstructors(id) {
-    if (!(await categoryRepository.categoryExists(id))) {
-      throw ApiError.notFound(`Category ID ${id} not found`);
+    static async updateCategory(id, data) {
+        try {
+            if (!(await CategoryRepository.categoryExists(id))) {
+                throw ApiError.notFound(`Category ID ${id} not found`);
+            }
+            await CategoryRepository.updateCategory(id, data);
+            const category = await CategoryRepository.getCategoryById(id);
+            return category;
+        } catch (e) {
+            throw e;
+        }
     }
-    return categoryRepository.getCategoryInstructors(id);
-  }
+
+    static async deleteCategory(id) {
+        try {
+            if (!(await CategoryRepository.categoryExists(id))) {
+                throw ApiError.notFound(`Category ID ${id} not found`);
+            }
+            await CategoryRepository.deleteCategory(id);
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    static async getCategoryCourses(id) {
+        try {
+            if (!(await CategoryRepository.categoryExists(id))) {
+                throw ApiError.notFound(`Category ID ${id} not found`);
+            }
+            return await CategoryRepository.getCategoryCourses(id);
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    static async getCategoryInstructors(id) {
+        try {
+            if (!(await CategoryRepository.categoryExists(id))) {
+                throw ApiError.notFound(`Category ID ${id} not found`);
+            }
+            return await CategoryRepository.getCategoryInstructors(id);
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = CategoryService;
