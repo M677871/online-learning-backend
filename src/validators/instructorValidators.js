@@ -1,6 +1,6 @@
-const {body , param, validationResult} = require("express-validator");
+const { body, param, validationResult } = require('express-validator');
 
-const validateInstructor =[
+const validateInstructor = [
     body('userId')
         .isInt()
         .withMessage('userId must be integer')
@@ -21,34 +21,34 @@ const validateInstructor =[
         .withMessage('bio must be string')
         .notEmpty()
         .withMessage('bio is required'),
-        body('profilePicture')
+    body('profilePicture')
         .custom(value => {
             return /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(value) || /^data:image\/[a-z]+;base64,/.test(value);
         })
         .withMessage('profilePicture must be a valid URL or Base64 string')
         .notEmpty()
         .withMessage('profilePicture is required'),
-
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
+];
 
-]
 const validateInstructorId = [
     param('id').isInt().withMessage('ID must be integer'),
-    (req, res, next)=>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()})
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
-module.exports= {
+];
+
+module.exports = {
     validateInstructor,
     validateInstructorId,
-}
+};

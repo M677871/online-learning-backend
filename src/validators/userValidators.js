@@ -1,6 +1,6 @@
-const {body, param, validationResult} = require("express-validator");
+const { body, param, validationResult } = require('express-validator');
 
-const validateUser =[
+const validateUser = [
     body('password')
         .isStrongPassword()
         .withMessage('Must be strong password')
@@ -11,47 +11,46 @@ const validateUser =[
         .withMessage('Invalid email format')
         .notEmpty()
         .withMessage('Email is required'),
-   body('userType')
+    body('userType')
         .isIn(['student', 'instructor'])
         .withMessage('Invalid user type')
         .notEmpty()
         .withMessage('User type is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateUserId = [
-   
-      param('id').isInt().withMessage('ID must be an integer'),
-    
-    (req, res, next)=>{
-       
+    param('id').isInt().withMessage('ID must be an integer'),
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-           // console.log(errors.array());
-            return res.status(400).json({errors: errors.array()})
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateUserEmail = [
     param('email')
         .isEmail()
         .withMessage('Invalid email format')
         .notEmpty()
         .withMessage('Email is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateUserLogin = [
     body('password')
         .notEmpty()
@@ -59,14 +58,15 @@ const validateUserLogin = [
     body('email')
         .notEmpty()
         .withMessage('Email is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateUserChangePassword = [
     body('currentPassword')
         .notEmpty()
@@ -81,18 +81,19 @@ const validateUserChangePassword = [
         .withMessage('Invalid email format')
         .notEmpty()
         .withMessage('Email is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 module.exports = {
     validateUser,
     validateUserId,
     validateUserEmail,
     validateUserLogin,
     validateUserChangePassword
-}
+};

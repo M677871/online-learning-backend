@@ -1,6 +1,6 @@
-const {body ,param ,validationResult} = require("express-validator");
-//  instructorId, categorieId, courseName, description 
-const validateCourse =[
+const { body, param, validationResult } = require('express-validator');
+
+const validateCourse = [
     body('instructorId')
         .isInt()
         .withMessage('instructorId must be integer')
@@ -21,25 +21,27 @@ const validateCourse =[
         .withMessage('description must be string')
         .notEmpty()
         .withMessage('description is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateCourseId = [
     param('id').isInt().withMessage('ID must be integer'),
-    (req, res, next)=>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()})
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
-module.exports= {
+];
+
+module.exports = {
     validateCourse,
     validateCourseId,
-}
+};

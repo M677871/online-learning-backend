@@ -1,6 +1,6 @@
-const {body , param, validationResult} = require("express-validator");
+const { body, param, validationResult } = require('express-validator');
 
-const validateEnrollement =[
+const validateEnrollment = [
     body('studentId')
         .isInt()
         .withMessage('Must be integer')
@@ -12,29 +12,31 @@ const validateEnrollement =[
         .notEmpty()
         .withMessage('courseId is required'),
     body('status')
-        .isIn(['enrolled','in_progress','completed'])
+        .isIn(['enrolled', 'in_progress', 'completed'])
         .withMessage('Invalid status')
         .notEmpty()
         .withMessage('status is required'),
-    (req, res, next) =>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
-const validateEnrollementId = [
+];
+
+const validateEnrollmentId = [
     param('id').isInt().withMessage('ID must be integer'),
-    (req, res, next)=>{
+    (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()})
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]   
-module.exports= {
-    validateEnrollement,
-    validateEnrollementId,
-}
+];
+
+module.exports = {
+    validateEnrollment,
+    validateEnrollmentId,
+};

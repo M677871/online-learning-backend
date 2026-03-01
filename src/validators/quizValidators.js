@@ -1,4 +1,4 @@
-const {body , param ,validationResult} = require("express-validator");
+const { body, param, validationResult } = require('express-validator');
 
 const validateQuiz = [
     body('courseId')
@@ -18,25 +18,27 @@ const validateQuiz = [
         .withMessage('Quiz description is required'),
     (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 const validateQuizId = [
     param('id')
         .isInt()
         .withMessage('ID must be integer'),
     (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({errors: errors.array()});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 module.exports = {
     validateQuiz,
     validateQuizId,
-}
+};

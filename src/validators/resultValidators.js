@@ -1,4 +1,4 @@
-const {body , param, validationResult} = require('express-validator');
+const { body, param, validationResult } = require('express-validator');
 
 const validateResult = [
     body('quizId')
@@ -23,7 +23,8 @@ const validateResult = [
         }
         next();
     }
-]
+];
+
 const validateResultId = [
     param('id')
         .isInt()
@@ -31,12 +32,13 @@ const validateResultId = [
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() })
+            return res.status(400).json({ errors: errors.array() });
         }
         next();
     }
-]
+];
+
 module.exports = {
     validateResult,
-    validateResultId
-}
+    validateResultId,
+};

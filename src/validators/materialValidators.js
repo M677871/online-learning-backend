@@ -1,6 +1,6 @@
 const { body, param, validationResult } = require('express-validator');
 
-const allowedMaterialTypes = ['video', 'document', 'link', 'pdf']; // Enum values
+const allowedMaterialTypes = ['video', 'document', 'link', 'pdf'];
 
 const validateMaterial = [
     body('courseId')
@@ -8,13 +8,11 @@ const validateMaterial = [
         .withMessage('courseId must be an integer')
         .notEmpty()
         .withMessage('courseId is required'),
-
     body('title')
         .isString()
         .withMessage('title must be a string')
         .notEmpty()
         .withMessage('title is required'),
-
     body('materialType')
         .isString()
         .withMessage('materialType must be a string')
@@ -22,7 +20,6 @@ const validateMaterial = [
         .withMessage('materialType is required')
         .isIn(allowedMaterialTypes)
         .withMessage(`materialType must be one of the following: ${allowedMaterialTypes.join(', ')}`),
-
     body('filePath')
         .custom(value => {
             return /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(value) || /^data:image\/[a-z]+;base64,/.test(value);
@@ -30,7 +27,6 @@ const validateMaterial = [
         .withMessage('filePath must be a valid URL or Base64 string')
         .notEmpty()
         .withMessage('filePath is required'),
-
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -44,7 +40,6 @@ const validateMaterialId = [
     param('id')
         .isInt()
         .withMessage('ID must be an integer'),
-
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
