@@ -60,6 +60,14 @@ The API listens on `http://localhost:<PORT>` (default **3000**).
 ├── database/
 │   └── schema.sql                  # MariaDB schema
 ├── package.json
+├── jest.config.js                  # Jest configuration
+├── tests/                          # Automated tests (Jest + Supertest)
+│   ├── routes/                     # API endpoint tests against Express app
+│   ├── services/                   # Business-logic unit tests (mocked repositories)
+│   ├── validators/                 # Validation middleware tests
+│   ├── middlewares/                # Error/404 middleware tests
+│   ├── helpers/                    # Shared test helpers (e.g., auth token builder)
+│   └── setup/                      # Test environment bootstrap + teardown
 ├── src/
 │   ├── app.js                      # Express app setup, routes & middleware
 │   ├── server.js                   # HTTP server (app.listen)
@@ -125,6 +133,49 @@ Request → Route → [Validators] → [authenticate] → [authorize] → Contro
                                                                      ↓              ↓            ↓
                                                                     DTO          Entity      Native SQL
 ```
+
+---
+
+## Automated Testing
+
+This project uses:
+
+- **Jest** for unit and integration test execution
+- **Supertest** for HTTP endpoint testing against the Express app
+
+### Test Structure
+
+- `tests/routes/*.test.js`
+  - Verifies real API behavior via `supertest(app)` (status codes, auth/authorization, validation, JSON error responses).
+  - Organized by entity with one file per route module, for example:
+    - `User.test.js`, `Course.test.js`, `Category.test.js`
+    - `Student.test.js`, `Instructor.test.js`, `Enrollment.test.js`
+    - `CourseMaterial.test.js`, `Quiz.test.js`, `QuizQuestion.test.js`, `QuizAnswer.test.js`, `QuizResult.test.js`
+- `tests/services/*.test.js`
+  - Verifies service-layer business rules with repository dependencies mocked.
+  - Focuses on domain-specific cases such as conflicts, not-found errors, and valid create/update flows.
+- `tests/validators/*.test.js`
+  - Verifies express-validator middleware behavior for valid and invalid payloads.
+- `tests/middlewares/*.test.js`
+  - Verifies cross-cutting middleware behavior (`notFound`, `errorHandler`).
+
+### Run Tests
+
+```bash
+# Run all tests once
+npm test
+
+# Run in watch mode during development
+npm run test:watch
+
+# Run with coverage report
+npm run test:coverage
+```
+
+### Notes
+
+- Tests are intentionally isolated from the database by mocking repository/database dependencies where needed.
+- JWT and runtime test environment variables are set in `tests/setup/env.js` for deterministic execution.
 
 ---
 
