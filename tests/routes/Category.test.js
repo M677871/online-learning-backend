@@ -29,12 +29,13 @@ const validCategoryPayload = {
     description: 'Programming courses',
 };
 
-describe('Category routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/categories returns categories', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Category routes – GET /api/categories', () => {
+    it('should return categories', async () => {
         CategoryService.getAllCategories.mockResolvedValue([
             { categoryId: 1, ...validCategoryPayload },
         ]);
@@ -47,13 +48,27 @@ describe('Category routes', () => {
         expect(CategoryService.getAllCategories).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/categories/:id validates id', async () => {
+    it('should return 500 when service fails', async () => {
+        CategoryService.getAllCategories.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app).get('/api/categories');
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Category routes – GET /api/categories/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/categories/not-int');
         expectValidationError(res);
         expect(CategoryService.getCategoryById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/categories/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CategoryService.getCategoryById.mockRejectedValue(apiError(404, 'Category ID 88 not found'));
 
         const res = await request(app).get('/api/categories/88');
@@ -63,7 +78,7 @@ describe('Category routes', () => {
         expect(CategoryService.getCategoryById).toHaveBeenCalledWith('88');
     });
 
-    test('GET /api/categories/:id returns category', async () => {
+    it('should return category', async () => {
         CategoryService.getCategoryById.mockResolvedValue({
             categoryId: 1,
             ...validCategoryPayload,
@@ -78,15 +93,17 @@ describe('Category routes', () => {
         });
         expect(CategoryService.getCategoryById).toHaveBeenCalledWith('1');
     });
+});
 
-    test('GET /api/categories/courses/:id validates id', async () => {
+describe('Category routes – GET /api/categories/courses/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/categories/courses/not-int');
 
         expectValidationError(res);
         expect(CategoryService.getCategoryCourses).not.toHaveBeenCalled();
     });
 
-    test('GET /api/categories/courses/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CategoryService.getCategoryCourses.mockRejectedValue(apiError(404, 'Category ID 99 not found'));
 
         const res = await request(app).get('/api/categories/courses/99');
@@ -96,7 +113,7 @@ describe('Category routes', () => {
         expect(CategoryService.getCategoryCourses).toHaveBeenCalledWith('99');
     });
 
-    test('GET /api/categories/courses/:id returns category courses', async () => {
+    it('should return category courses', async () => {
         CategoryService.getCategoryCourses.mockResolvedValue([{ course_id: 3, course_name: 'Node' }]);
 
         const res = await request(app).get('/api/categories/courses/1');
@@ -105,15 +122,17 @@ describe('Category routes', () => {
         expect(res.body.data).toHaveLength(1);
         expect(CategoryService.getCategoryCourses).toHaveBeenCalledWith('1');
     });
+});
 
-    test('GET /api/categories/instructor/:id validates id', async () => {
+describe('Category routes – GET /api/categories/instructor/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/categories/instructor/abc');
 
         expectValidationError(res);
         expect(CategoryService.getCategoryInstructors).not.toHaveBeenCalled();
     });
 
-    test('GET /api/categories/instructor/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CategoryService.getCategoryInstructors.mockRejectedValue(apiError(404, 'Category ID 42 not found'));
 
         const res = await request(app).get('/api/categories/instructor/42');
@@ -123,7 +142,7 @@ describe('Category routes', () => {
         expect(CategoryService.getCategoryInstructors).toHaveBeenCalledWith('42');
     });
 
-    test('GET /api/categories/instructor/:id returns category instructors', async () => {
+    it('should return category instructors', async () => {
         CategoryService.getCategoryInstructors.mockResolvedValue([{ instructor_id: 2 }]);
 
         const res = await request(app).get('/api/categories/instructor/1');
@@ -132,14 +151,16 @@ describe('Category routes', () => {
         expect(res.body.data[0].instructor_id).toBe(2);
         expect(CategoryService.getCategoryInstructors).toHaveBeenCalledWith('1');
     });
+});
 
-    test('POST /api/categories requires authentication', async () => {
+describe('Category routes – POST /api/categories', () => {
+    it('should require authentication', async () => {
         const res = await request(app).post('/api/categories').send(validCategoryPayload);
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/categories requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .post('/api/categories')
             .set(studentAuthHeader())
@@ -150,7 +171,7 @@ describe('Category routes', () => {
         expect(CategoryService.createCategory).not.toHaveBeenCalled();
     });
 
-    test('POST /api/categories validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/categories')
             .set(instructorAuthHeader())
@@ -160,7 +181,7 @@ describe('Category routes', () => {
         expect(CategoryService.createCategory).not.toHaveBeenCalled();
     });
 
-    test('POST /api/categories creates category', async () => {
+    it('should create category', async () => {
         CategoryService.createCategory.mockResolvedValue({
             categoryId: 5,
             ...validCategoryPayload,
@@ -177,7 +198,24 @@ describe('Category routes', () => {
         expect(CategoryService.createCategory).toHaveBeenCalledWith(validCategoryPayload);
     });
 
-    test('PUT /api/categories/:id requires authentication', async () => {
+    it('should return 500 when creation fails unexpectedly', async () => {
+        CategoryService.createCategory.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app)
+            .post('/api/categories')
+            .set(instructorAuthHeader())
+            .send(validCategoryPayload);
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Category routes – PUT /api/categories/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/categories/1')
             .send(validCategoryPayload);
@@ -186,7 +224,7 @@ describe('Category routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/categories/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .put('/api/categories/1')
             .set(studentAuthHeader())
@@ -197,7 +235,7 @@ describe('Category routes', () => {
         expect(CategoryService.updateCategory).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/categories/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .put('/api/categories/abc')
             .set(instructorAuthHeader())
@@ -207,7 +245,7 @@ describe('Category routes', () => {
         expect(CategoryService.updateCategory).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/categories/:id validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/categories/1')
             .set(instructorAuthHeader())
@@ -217,7 +255,7 @@ describe('Category routes', () => {
         expect(CategoryService.updateCategory).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/categories/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CategoryService.updateCategory.mockRejectedValue(apiError(404, 'Category ID 50 not found'));
 
         const res = await request(app)
@@ -230,7 +268,7 @@ describe('Category routes', () => {
         expect(CategoryService.updateCategory).toHaveBeenCalledWith('50', validCategoryPayload);
     });
 
-    test('PUT /api/categories/:id updates category', async () => {
+    it('should update category', async () => {
         CategoryService.updateCategory.mockResolvedValue({
             categoryId: 1,
             ...validCategoryPayload,
@@ -245,15 +283,17 @@ describe('Category routes', () => {
         expect(res.body.message).toBe('Category updated successfully');
         expect(CategoryService.updateCategory).toHaveBeenCalledWith('1', validCategoryPayload);
     });
+});
 
-    test('DELETE /api/categories/:id requires authentication', async () => {
+describe('Category routes – DELETE /api/categories/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/categories/1');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/categories/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .delete('/api/categories/1')
             .set(studentAuthHeader());
@@ -263,7 +303,7 @@ describe('Category routes', () => {
         expect(CategoryService.deleteCategory).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/categories/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/categories/abc')
             .set(instructorAuthHeader());
@@ -272,7 +312,7 @@ describe('Category routes', () => {
         expect(CategoryService.deleteCategory).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/categories/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CategoryService.deleteCategory.mockRejectedValue(apiError(404, 'Category ID 1 not found'));
 
         const res = await request(app)
@@ -284,7 +324,7 @@ describe('Category routes', () => {
         expect(CategoryService.deleteCategory).toHaveBeenCalledWith('1');
     });
 
-    test('DELETE /api/categories/:id deletes category', async () => {
+    it('should delete category', async () => {
         CategoryService.deleteCategory.mockResolvedValue(undefined);
 
         const res = await request(app)

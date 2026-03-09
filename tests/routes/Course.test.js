@@ -31,12 +31,13 @@ const validCoursePayload = {
     description: 'Backend basics',
 };
 
-describe('Course routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/courses returns courses', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Course routes – GET /api/courses', () => {
+    it('should return courses', async () => {
         CourseService.getAllCourses.mockResolvedValue([
             { courseId: 1, ...validCoursePayload, createdAt: '2025-01-01' },
         ]);
@@ -49,13 +50,27 @@ describe('Course routes', () => {
         expect(CourseService.getAllCourses).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/courses/:id validates id', async () => {
+    it('should return 500 when service fails', async () => {
+        CourseService.getAllCourses.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app).get('/api/courses');
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Course routes – GET /api/courses/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/courses/not-int');
         expectValidationError(res);
         expect(CourseService.getCourseById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/courses/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CourseService.getCourseById.mockRejectedValue(apiError(404, 'Course ID 99 not found'));
 
         const res = await request(app).get('/api/courses/99');
@@ -65,7 +80,7 @@ describe('Course routes', () => {
         expect(CourseService.getCourseById).toHaveBeenCalledWith('99');
     });
 
-    test('GET /api/courses/:id returns a course', async () => {
+    it('should return a course', async () => {
         CourseService.getCourseById.mockResolvedValue({
             courseId: 1,
             ...validCoursePayload,
@@ -82,15 +97,17 @@ describe('Course routes', () => {
         });
         expect(CourseService.getCourseById).toHaveBeenCalledWith('1');
     });
+});
 
-    test('GET /api/courses/instructorByCourseId/:id validates id', async () => {
+describe('Course routes – GET /api/courses/instructorByCourseId/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/courses/instructorByCourseId/not-int');
 
         expectValidationError(res);
         expect(CourseService.getInstructorByCourseId).not.toHaveBeenCalled();
     });
 
-    test('GET /api/courses/instructorByCourseId/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CourseService.getInstructorByCourseId.mockRejectedValue(apiError(404, 'Course ID 101 not found'));
 
         const res = await request(app).get('/api/courses/instructorByCourseId/101');
@@ -100,7 +117,7 @@ describe('Course routes', () => {
         expect(CourseService.getInstructorByCourseId).toHaveBeenCalledWith('101');
     });
 
-    test('GET /api/courses/instructorByCourseId/:id returns instructor', async () => {
+    it('should return instructor', async () => {
         CourseService.getInstructorByCourseId.mockResolvedValue({
             instructor_id: 2,
             ins_FName: 'John',
@@ -114,15 +131,17 @@ describe('Course routes', () => {
         expect(res.body.data.instructor_id).toBe(2);
         expect(CourseService.getInstructorByCourseId).toHaveBeenCalledWith('1');
     });
+});
 
-    test('GET /api/courses/stdOfCourse/:id validates id', async () => {
+describe('Course routes – GET /api/courses/stdOfCourse/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/courses/stdOfCourse/abc');
 
         expectValidationError(res);
         expect(CourseService.getStudentsOfCourse).not.toHaveBeenCalled();
     });
 
-    test('GET /api/courses/stdOfCourse/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CourseService.getStudentsOfCourse.mockRejectedValue(apiError(404, 'Course ID 404 not found'));
 
         const res = await request(app).get('/api/courses/stdOfCourse/404');
@@ -132,7 +151,7 @@ describe('Course routes', () => {
         expect(CourseService.getStudentsOfCourse).toHaveBeenCalledWith('404');
     });
 
-    test('GET /api/courses/stdOfCourse/:id returns course students', async () => {
+    it('should return course students', async () => {
         CourseService.getStudentsOfCourse.mockResolvedValue([
             { studend_id: 5, stu_FName: 'Jane' },
         ]);
@@ -143,14 +162,16 @@ describe('Course routes', () => {
         expect(res.body.data).toHaveLength(1);
         expect(CourseService.getStudentsOfCourse).toHaveBeenCalledWith('1');
     });
+});
 
-    test('POST /api/courses requires authentication', async () => {
+describe('Course routes – POST /api/courses', () => {
+    it('should require authentication', async () => {
         const res = await request(app).post('/api/courses').send(validCoursePayload);
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/courses requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .post('/api/courses')
             .set(studentAuthHeader())
@@ -161,7 +182,7 @@ describe('Course routes', () => {
         expect(CourseService.createCourse).not.toHaveBeenCalled();
     });
 
-    test('POST /api/courses validates request body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/courses')
             .set(instructorAuthHeader())
@@ -176,7 +197,7 @@ describe('Course routes', () => {
         expect(CourseService.createCourse).not.toHaveBeenCalled();
     });
 
-    test('POST /api/courses returns service not found errors', async () => {
+    it('should return service not found errors', async () => {
         CourseService.createCourse.mockRejectedValue(apiError(404, 'Instructor ID 999 not found'));
 
         const res = await request(app)
@@ -189,7 +210,7 @@ describe('Course routes', () => {
         expect(CourseService.createCourse).toHaveBeenCalledWith(validCoursePayload);
     });
 
-    test('POST /api/courses creates course', async () => {
+    it('should create course', async () => {
         CourseService.createCourse.mockResolvedValue({
             courseId: 10,
             ...validCoursePayload,
@@ -206,8 +227,10 @@ describe('Course routes', () => {
         expect(res.body.data.courseId).toBe(10);
         expect(CourseService.createCourse).toHaveBeenCalledWith(validCoursePayload);
     });
+});
 
-    test('PUT /api/courses/:id requires authentication', async () => {
+describe('Course routes – PUT /api/courses/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/courses/2')
             .send(validCoursePayload);
@@ -216,7 +239,7 @@ describe('Course routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/courses/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .put('/api/courses/2')
             .set(studentAuthHeader())
@@ -227,7 +250,7 @@ describe('Course routes', () => {
         expect(CourseService.updateCourse).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/courses/:id validates request', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/courses/not-int')
             .set(instructorAuthHeader())
@@ -237,7 +260,7 @@ describe('Course routes', () => {
         expect(CourseService.updateCourse).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/courses/:id validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/courses/2')
             .set(instructorAuthHeader())
@@ -252,7 +275,7 @@ describe('Course routes', () => {
         expect(CourseService.updateCourse).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/courses/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CourseService.updateCourse.mockRejectedValue(apiError(404, 'Course ID 50 not found'));
 
         const res = await request(app)
@@ -265,7 +288,7 @@ describe('Course routes', () => {
         expect(CourseService.updateCourse).toHaveBeenCalledWith('50', validCoursePayload);
     });
 
-    test('PUT /api/courses/:id updates course', async () => {
+    it('should update course', async () => {
         CourseService.updateCourse.mockResolvedValue({
             courseId: 2,
             ...validCoursePayload,
@@ -281,15 +304,17 @@ describe('Course routes', () => {
         expect(res.body.message).toBe('Course updated successfully');
         expect(CourseService.updateCourse).toHaveBeenCalledWith('2', validCoursePayload);
     });
+});
 
-    test('DELETE /api/courses/:id requires authentication', async () => {
+describe('Course routes – DELETE /api/courses/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/courses/2');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/courses/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .delete('/api/courses/2')
             .set(studentAuthHeader());
@@ -299,7 +324,7 @@ describe('Course routes', () => {
         expect(CourseService.deleteCourse).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/courses/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/courses/abc')
             .set(instructorAuthHeader());
@@ -308,7 +333,7 @@ describe('Course routes', () => {
         expect(CourseService.deleteCourse).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/courses/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         CourseService.deleteCourse.mockRejectedValue(apiError(404, 'Course ID 2 not found'));
 
         const res = await request(app)
@@ -320,7 +345,7 @@ describe('Course routes', () => {
         expect(CourseService.deleteCourse).toHaveBeenCalledWith('2');
     });
 
-    test('DELETE /api/courses/:id deletes course', async () => {
+    it('should delete course', async () => {
         CourseService.deleteCourse.mockResolvedValue(undefined);
 
         const res = await request(app)

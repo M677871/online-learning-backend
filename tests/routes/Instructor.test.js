@@ -31,12 +31,13 @@ const validInstructorPayload = {
     profilePicture: 'https://example.com/john.png',
 };
 
-describe('Instructor routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/instructors returns instructors', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Instructor routes – GET /api/instructors', () => {
+    it('should return instructors', async () => {
         InstructorService.getAllInstructors.mockResolvedValue([
             { instructorId: 1, ...validInstructorPayload },
         ]);
@@ -49,13 +50,27 @@ describe('Instructor routes', () => {
         expect(InstructorService.getAllInstructors).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/instructors/:id validates id', async () => {
+    it('should return 500 when service fails', async () => {
+        InstructorService.getAllInstructors.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app).get('/api/instructors');
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Instructor routes – GET /api/instructors/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/instructors/abc');
         expectValidationError(res);
         expect(InstructorService.getInstructorById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/instructors/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         InstructorService.getInstructorById.mockRejectedValue(apiError(404, 'Instructor ID 20 not found'));
 
         const res = await request(app).get('/api/instructors/20');
@@ -65,7 +80,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.getInstructorById).toHaveBeenCalledWith('20');
     });
 
-    test('GET /api/instructors/:id returns instructor', async () => {
+    it('should return instructor', async () => {
         InstructorService.getInstructorById.mockResolvedValue({
             instructorId: 2,
             ...validInstructorPayload,
@@ -80,15 +95,17 @@ describe('Instructor routes', () => {
         });
         expect(InstructorService.getInstructorById).toHaveBeenCalledWith('2');
     });
+});
 
-    test('GET /api/instructors/courses/:id validates id', async () => {
+describe('Instructor routes – GET /api/instructors/courses/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app).get('/api/instructors/courses/not-int');
 
         expectValidationError(res);
         expect(InstructorService.getInstructorCourses).not.toHaveBeenCalled();
     });
 
-    test('GET /api/instructors/courses/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         InstructorService.getInstructorCourses.mockRejectedValue(apiError(404, 'Instructor ID 40 not found'));
 
         const res = await request(app).get('/api/instructors/courses/40');
@@ -98,7 +115,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.getInstructorCourses).toHaveBeenCalledWith('40');
     });
 
-    test('GET /api/instructors/courses/:id returns instructor courses', async () => {
+    it('should return instructor courses', async () => {
         InstructorService.getInstructorCourses.mockResolvedValue([{ course_id: 3 }]);
 
         const res = await request(app).get('/api/instructors/courses/2');
@@ -107,14 +124,16 @@ describe('Instructor routes', () => {
         expect(res.body.data).toHaveLength(1);
         expect(InstructorService.getInstructorCourses).toHaveBeenCalledWith('2');
     });
+});
 
-    test('POST /api/instructors requires authentication', async () => {
+describe('Instructor routes – POST /api/instructors', () => {
+    it('should require authentication', async () => {
         const res = await request(app).post('/api/instructors').send(validInstructorPayload);
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/instructors requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .post('/api/instructors')
             .set(studentAuthHeader())
@@ -125,7 +144,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.createInstructor).not.toHaveBeenCalled();
     });
 
-    test('POST /api/instructors validates payload', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/instructors')
             .set(instructorAuthHeader())
@@ -141,7 +160,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.createInstructor).not.toHaveBeenCalled();
     });
 
-    test('POST /api/instructors handles conflict', async () => {
+    it('should handle conflict', async () => {
         InstructorService.createInstructor.mockRejectedValue(
             apiError(409, 'Instructor profile for user ID 2 already exists')
         );
@@ -156,7 +175,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.createInstructor).toHaveBeenCalledWith(validInstructorPayload);
     });
 
-    test('POST /api/instructors creates instructor', async () => {
+    it('should create instructor', async () => {
         InstructorService.createInstructor.mockResolvedValue({
             instructorId: 8,
             ...validInstructorPayload,
@@ -171,8 +190,10 @@ describe('Instructor routes', () => {
         expect(res.body.message).toBe('Instructor created successfully');
         expect(InstructorService.createInstructor).toHaveBeenCalledWith(validInstructorPayload);
     });
+});
 
-    test('PUT /api/instructors/:id requires authentication', async () => {
+describe('Instructor routes – PUT /api/instructors/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/instructors/2')
             .send(validInstructorPayload);
@@ -181,7 +202,7 @@ describe('Instructor routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/instructors/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .put('/api/instructors/2')
             .set(studentAuthHeader())
@@ -192,7 +213,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.updateInstructor).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/instructors/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .put('/api/instructors/not-int')
             .set(instructorAuthHeader())
@@ -202,7 +223,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.updateInstructor).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/instructors/:id validates payload', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/instructors/2')
             .set(instructorAuthHeader())
@@ -218,7 +239,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.updateInstructor).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/instructors/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         InstructorService.updateInstructor.mockRejectedValue(apiError(404, 'Instructor ID 9 not found'));
 
         const res = await request(app)
@@ -231,7 +252,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.updateInstructor).toHaveBeenCalledWith('9', validInstructorPayload);
     });
 
-    test('PUT /api/instructors/:id updates instructor', async () => {
+    it('should update instructor', async () => {
         InstructorService.updateInstructor.mockResolvedValue({
             instructorId: 2,
             ...validInstructorPayload,
@@ -246,15 +267,17 @@ describe('Instructor routes', () => {
         expect(res.body.message).toBe('Instructor updated successfully');
         expect(InstructorService.updateInstructor).toHaveBeenCalledWith('2', validInstructorPayload);
     });
+});
 
-    test('DELETE /api/instructors/:id requires authentication', async () => {
+describe('Instructor routes – DELETE /api/instructors/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/instructors/2');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/instructors/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .delete('/api/instructors/2')
             .set(studentAuthHeader());
@@ -264,7 +287,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.deleteInstructor).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/instructors/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/instructors/abc')
             .set(instructorAuthHeader());
@@ -273,7 +296,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.deleteInstructor).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/instructors/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         InstructorService.deleteInstructor.mockRejectedValue(apiError(404, 'Instructor ID 2 not found'));
 
         const res = await request(app)
@@ -285,7 +308,7 @@ describe('Instructor routes', () => {
         expect(InstructorService.deleteInstructor).toHaveBeenCalledWith('2');
     });
 
-    test('DELETE /api/instructors/:id deletes instructor', async () => {
+    it('should delete instructor', async () => {
         InstructorService.deleteInstructor.mockResolvedValue(undefined);
 
         const res = await request(app)

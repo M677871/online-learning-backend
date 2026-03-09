@@ -32,18 +32,19 @@ const validStudentPayload = {
     profilePicture: 'https://example.com/jane.png',
 };
 
-describe('Student routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/students requires authentication', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Student routes – GET /api/students', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/students');
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/students returns students', async () => {
+    it('should return students', async () => {
         StudentService.getAllStudents.mockResolvedValue([
             { studentId: 1, ...validStudentPayload },
         ]);
@@ -58,14 +59,30 @@ describe('Student routes', () => {
         expect(StudentService.getAllStudents).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/students/:id requires authentication', async () => {
+    it('should return 500 when service fails', async () => {
+        StudentService.getAllStudents.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app)
+            .get('/api/students')
+            .set(authHeader());
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Student routes – GET /api/students/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/students/2');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/students/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .get('/api/students/not-int')
             .set(authHeader());
@@ -74,7 +91,7 @@ describe('Student routes', () => {
         expect(StudentService.getStudentById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/students/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         StudentService.getStudentById.mockRejectedValue(apiError(404, 'Student ID 20 not found'));
 
         const res = await request(app)
@@ -86,7 +103,7 @@ describe('Student routes', () => {
         expect(StudentService.getStudentById).toHaveBeenCalledWith('20');
     });
 
-    test('GET /api/students/:id returns student', async () => {
+    it('should return student', async () => {
         StudentService.getStudentById.mockResolvedValue({
             studentId: 2,
             ...validStudentPayload,
@@ -103,8 +120,10 @@ describe('Student routes', () => {
         });
         expect(StudentService.getStudentById).toHaveBeenCalledWith('2');
     });
+});
 
-    test('GET /api/students/studentCourses/:id validates id', async () => {
+describe('Student routes – GET /api/students/studentCourses/:id', () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .get('/api/students/studentCourses/not-int')
             .set(authHeader());
@@ -113,7 +132,7 @@ describe('Student routes', () => {
         expect(StudentService.getStudentCourses).not.toHaveBeenCalled();
     });
 
-    test('GET /api/students/studentCourses/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         StudentService.getStudentCourses.mockRejectedValue(apiError(404, 'Student ID 2 not found'));
 
         const res = await request(app)
@@ -125,7 +144,7 @@ describe('Student routes', () => {
         expect(StudentService.getStudentCourses).toHaveBeenCalledWith('2');
     });
 
-    test('GET /api/students/studentCourses/:id returns student courses', async () => {
+    it('should return student courses', async () => {
         StudentService.getStudentCourses.mockResolvedValue([{ course_id: 1, course_name: 'Node' }]);
 
         const res = await request(app)
@@ -136,8 +155,10 @@ describe('Student routes', () => {
         expect(res.body.data).toHaveLength(1);
         expect(StudentService.getStudentCourses).toHaveBeenCalledWith('2');
     });
+});
 
-    test('POST /api/students requires authentication', async () => {
+describe('Student routes – POST /api/students', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .post('/api/students')
             .send(validStudentPayload);
@@ -146,7 +167,7 @@ describe('Student routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/students validates payload', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/students')
             .set(authHeader())
@@ -162,7 +183,7 @@ describe('Student routes', () => {
         expect(StudentService.createStudent).not.toHaveBeenCalled();
     });
 
-    test('POST /api/students handles conflict from service', async () => {
+    it('should handle conflict from service', async () => {
         StudentService.createStudent.mockRejectedValue(
             apiError(409, 'Student profile for user ID 7 already exists')
         );
@@ -177,7 +198,7 @@ describe('Student routes', () => {
         expect(StudentService.createStudent).toHaveBeenCalledWith(validStudentPayload);
     });
 
-    test('POST /api/students creates student', async () => {
+    it('should create student', async () => {
         StudentService.createStudent.mockResolvedValue({
             studentId: 10,
             ...validStudentPayload,
@@ -192,8 +213,10 @@ describe('Student routes', () => {
         expect(res.body.message).toBe('Student created successfully');
         expect(StudentService.createStudent).toHaveBeenCalledWith(validStudentPayload);
     });
+});
 
-    test('PUT /api/students/:id requires authentication', async () => {
+describe('Student routes – PUT /api/students/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/students/2')
             .send(validStudentPayload);
@@ -202,7 +225,7 @@ describe('Student routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/students/:id validates request data', async () => {
+    it('should validate request data', async () => {
         const res = await request(app)
             .put('/api/students/not-int')
             .set(authHeader())
@@ -212,7 +235,7 @@ describe('Student routes', () => {
         expect(StudentService.updateStudent).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/students/:id validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/students/2')
             .set(authHeader())
@@ -228,7 +251,7 @@ describe('Student routes', () => {
         expect(StudentService.updateStudent).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/students/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         StudentService.updateStudent.mockRejectedValue(apiError(404, 'Student ID 40 not found'));
 
         const res = await request(app)
@@ -241,7 +264,7 @@ describe('Student routes', () => {
         expect(StudentService.updateStudent).toHaveBeenCalledWith('40', validStudentPayload);
     });
 
-    test('PUT /api/students/:id updates student', async () => {
+    it('should update student', async () => {
         StudentService.updateStudent.mockResolvedValue({
             studentId: 2,
             ...validStudentPayload,
@@ -256,15 +279,17 @@ describe('Student routes', () => {
         expect(res.body.message).toBe('Student updated successfully');
         expect(StudentService.updateStudent).toHaveBeenCalledWith('2', validStudentPayload);
     });
+});
 
-    test('DELETE /api/students/:id requires authentication', async () => {
+describe('Student routes – DELETE /api/students/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/students/2');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/students/:id requires instructor role', async () => {
+    it('should require instructor role', async () => {
         const res = await request(app)
             .delete('/api/students/2')
             .set(studentAuthHeader());
@@ -274,7 +299,7 @@ describe('Student routes', () => {
         expect(StudentService.deleteStudent).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/students/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/students/not-int')
             .set(instructorAuthHeader());
@@ -283,7 +308,7 @@ describe('Student routes', () => {
         expect(StudentService.deleteStudent).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/students/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         StudentService.deleteStudent.mockRejectedValue(apiError(404, 'Student ID 2 not found'));
 
         const res = await request(app)
@@ -295,7 +320,7 @@ describe('Student routes', () => {
         expect(StudentService.deleteStudent).toHaveBeenCalledWith('2');
     });
 
-    test('DELETE /api/students/:id deletes student', async () => {
+    it('should delete student', async () => {
         StudentService.deleteStudent.mockResolvedValue(undefined);
 
         const res = await request(app)
