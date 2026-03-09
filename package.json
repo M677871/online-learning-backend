@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "test": "jest --runInBand",
+    "test": "jest --verbose --runInBand",     
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --runInBand"
   },
@@ -25,5 +25,10 @@
   "devDependencies": {
     "jest": "^30.2.0",
     "supertest": "^7.2.2"
+  },
+  "notes": {
+    "test": "Run tests with Jest --verbose for detailed output and --runInBand to run tests sequentially (one by one).",
+    "test:watch": "--watch is to Run tests in watch mode to automatically re-run tests on file changes.",
+    "test:coverage": "--coverage is to Generate a test coverage report to see how much of the code is covered by tests."
   }
 }
