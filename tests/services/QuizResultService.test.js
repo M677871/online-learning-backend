@@ -26,6 +26,21 @@ describe('QuizResultService', () => {
         jest.clearAllMocks();
     });
 
+    test('getAllQuizResults returns results', async () => {
+        const results = [{ resultId: 1 }];
+        QuizResultRepository.getAllQuizResults.mockResolvedValue(results);
+
+        const result = await QuizResultService.getAllQuizResults();
+
+        expect(result).toEqual(results);
+    });
+
+    test('getAllQuizResults wraps repository errors', async () => {
+        QuizResultRepository.getAllQuizResults.mockRejectedValue(new Error('db down'));
+
+        await expect(QuizResultService.getAllQuizResults()).rejects.toThrow('db down');
+    });
+
     test('getQuizResultById throws not found when result does not exist', async () => {
         QuizResultRepository.getQuizResultById.mockResolvedValue(null);
 
@@ -33,6 +48,15 @@ describe('QuizResultService', () => {
             statusCode: 404,
             message: 'Quiz Result ID 5 not found',
         });
+    });
+
+    test('getQuizResultById returns result when found', async () => {
+        const row = { resultId: 5, quizId: 1, studentId: 2, score: 88 };
+        QuizResultRepository.getQuizResultById.mockResolvedValue(row);
+
+        const result = await QuizResultService.getQuizResultById(5);
+
+        expect(result).toEqual(row);
     });
 
     test('createQuizResult throws not found when quiz does not exist', async () => {
@@ -47,6 +71,22 @@ describe('QuizResultService', () => {
         ).rejects.toMatchObject({
             statusCode: 404,
             message: 'Quiz ID 77 not found',
+        });
+    });
+
+    test('createQuizResult throws not found when student does not exist', async () => {
+        QuizRepository.quizExists.mockResolvedValue(true);
+        StudentRepository.studentExists.mockResolvedValue(false);
+
+        await expect(
+            QuizResultService.createQuizResult({
+                quizId: 3,
+                studentId: 999,
+                score: 80,
+            })
+        ).rejects.toMatchObject({
+            statusCode: 404,
+            message: 'Student ID 999 not found',
         });
     });
 
@@ -84,6 +124,52 @@ describe('QuizResultService', () => {
         });
     });
 
+    test('updateQuizResult throws not found when result does not exist', async () => {
+        QuizResultRepository.resultExists.mockResolvedValue(false);
+
+        await expect(
+            QuizResultService.updateQuizResult(9, {
+                quizId: 3,
+                studentId: 2,
+                score: 70,
+            })
+        ).rejects.toMatchObject({
+            statusCode: 404,
+            message: 'Quiz Result ID 9 not found',
+        });
+    });
+
+    test('updateQuizResult throws not found when quiz does not exist', async () => {
+        QuizResultRepository.resultExists.mockResolvedValue(true);
+        QuizRepository.quizExists.mockResolvedValue(false);
+
+        await expect(
+            QuizResultService.updateQuizResult(9, {
+                quizId: 333,
+                studentId: 2,
+                score: 70,
+            })
+        ).rejects.toMatchObject({
+            statusCode: 404,
+            message: 'Quiz ID 333 not found',
+        });
+    });
+
+    test('updateQuizResult updates and returns result', async () => {
+        const payload = { quizId: 3, studentId: 2, score: 75 };
+
+        QuizResultRepository.resultExists.mockResolvedValue(true);
+        QuizRepository.quizExists.mockResolvedValue(true);
+        StudentRepository.studentExists.mockResolvedValue(true);
+        QuizResultRepository.updateQuizResult.mockResolvedValue(1);
+        QuizResultRepository.getQuizResultById.mockResolvedValue({ resultId: 9, ...payload });
+
+        const result = await QuizResultService.updateQuizResult(9, payload);
+
+        expect(QuizResultRepository.updateQuizResult).toHaveBeenCalledWith(9, payload);
+        expect(result).toEqual({ resultId: 9, ...payload });
+    });
+
     test('createQuizResult persists and returns created result when valid', async () => {
         const payload = {
             quizId: 1,
@@ -107,5 +193,23 @@ describe('QuizResultService', () => {
             resultId: 30,
             ...payload,
         });
+    });
+
+    test('deleteQuizResult throws not found when result does not exist', async () => {
+        QuizResultRepository.resultExists.mockResolvedValue(false);
+
+        await expect(QuizResultService.deleteQuizResult(1)).rejects.toMatchObject({
+            statusCode: 404,
+            message: 'Quiz Result ID 1 not found',
+        });
+    });
+
+    test('deleteQuizResult deletes an existing result', async () => {
+        QuizResultRepository.resultExists.mockResolvedValue(true);
+        QuizResultRepository.deleteQuizResult.mockResolvedValue(1);
+
+        await QuizResultService.deleteQuizResult(1);
+
+        expect(QuizResultRepository.deleteQuizResult).toHaveBeenCalledWith(1);
     });
 });
