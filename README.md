@@ -1,9 +1,6 @@
 # CSIS-228 Online Learning Platform — REST API
 
-Pure JSON REST API built with **Node.js**, **Express**, and **MariaDB** (native driver, no ORM).  
-Authentication uses **JWT Bearer tokens**; authorization is role-based (`student` / `instructor`).
-
-All layers use **static class methods**, **CommonJS modules**, and **native SQL queries** with parameterized placeholders.
+JSON REST API for an online learning platform built with **Node.js**, **Express**, and **MariaDB** (native driver, no ORM). It follows a **layered architecture** with controllers, services, repositories, validators, DTOs, and JWT-based role authorization, and includes **automated Jest + Supertest** tests for routes, services, validators, and middleware.
 
 ---
 
@@ -162,8 +159,8 @@ This project uses:
 ### Run Tests
 
 ```bash
-# Run all tests once
-npm test
+# Run tests with the main automation script
+npm run test
 
 # Run in watch mode during development
 npm run test:watch
@@ -171,6 +168,15 @@ npm run test:watch
 # Run with coverage report
 npm run test:coverage
 ```
+
+`npm run test` (same as `npm test`) runs Jest with `--verbose --runInBand`, which provides detailed output and automated sequential execution for stable local runs.
+
+### Testing Automation
+
+- Test execution is automated through npm scripts in `package.json`.
+- `npm run test:watch` automatically re-runs tests when files change.
+- `npm run test:coverage` automatically generates coverage summaries and detailed reports in the `coverage/` directory.
+- Route, service, validator, and middleware suites are all included in the same automated testing workflow.
 
 ### Notes
 

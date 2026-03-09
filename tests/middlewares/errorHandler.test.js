@@ -88,4 +88,21 @@ describe('errorHandler middleware', () => {
             message: 'Internal server error',
         });
     });
+
+    test('returns generic internal message when non-production error has no message', () => {
+        const req = {};
+        const res = createResponseMock();
+        const err = new Error('');
+        const originalNodeEnv = process.env.NODE_ENV;
+
+        process.env.NODE_ENV = 'test';
+        errorHandler(err, req, res);
+        process.env.NODE_ENV = originalNodeEnv;
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            message: 'Internal server error',
+        });
+    });
 });

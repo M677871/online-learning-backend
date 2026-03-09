@@ -27,18 +27,19 @@ const validResultPayload = {
     score: 90,
 };
 
-describe('Quiz Result routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/results requires authentication', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Quiz Result routes – GET /api/results', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/results');
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/results returns results', async () => {
+    it('should return results', async () => {
         QuizResultService.getAllQuizResults.mockResolvedValue([
             { resultId: 1, ...validResultPayload, completedAt: '2025-01-01' },
         ]);
@@ -52,14 +53,30 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.getAllQuizResults).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/results/:id requires authentication', async () => {
+    it('should return 500 when service fails', async () => {
+        QuizResultService.getAllQuizResults.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app)
+            .get('/api/results')
+            .set(authHeader());
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Quiz Result routes – GET /api/results/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/results/20');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/results/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .get('/api/results/not-int')
             .set(authHeader());
@@ -68,7 +85,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.getQuizResultById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/results/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         QuizResultService.getQuizResultById.mockRejectedValue(apiError(404, 'Quiz Result ID 20 not found'));
 
         const res = await request(app)
@@ -80,7 +97,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.getQuizResultById).toHaveBeenCalledWith('20');
     });
 
-    test('GET /api/results/:id returns result', async () => {
+    it('should return result', async () => {
         QuizResultService.getQuizResultById.mockResolvedValue({
             resultId: 2,
             ...validResultPayload,
@@ -99,8 +116,10 @@ describe('Quiz Result routes', () => {
         });
         expect(QuizResultService.getQuizResultById).toHaveBeenCalledWith('2');
     });
+});
 
-    test('POST /api/results requires authentication', async () => {
+describe('Quiz Result routes – POST /api/results', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .post('/api/results')
             .send(validResultPayload);
@@ -109,7 +128,7 @@ describe('Quiz Result routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/results validates payload', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/results')
             .set(authHeader())
@@ -123,7 +142,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.createQuizResult).not.toHaveBeenCalled();
     });
 
-    test('POST /api/results handles conflict', async () => {
+    it('should handle conflict', async () => {
         QuizResultService.createQuizResult.mockRejectedValue(
             apiError(409, 'Result already exists for this student and quiz')
         );
@@ -138,7 +157,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.createQuizResult).toHaveBeenCalledWith(validResultPayload);
     });
 
-    test('POST /api/results creates result', async () => {
+    it('should create result', async () => {
         QuizResultService.createQuizResult.mockResolvedValue({
             resultId: 5,
             ...validResultPayload,
@@ -154,8 +173,10 @@ describe('Quiz Result routes', () => {
         expect(res.body.message).toBe('Quiz result created successfully');
         expect(QuizResultService.createQuizResult).toHaveBeenCalledWith(validResultPayload);
     });
+});
 
-    test('PUT /api/results/:id requires authentication', async () => {
+describe('Quiz Result routes – PUT /api/results/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/results/2')
             .send(validResultPayload);
@@ -164,7 +185,7 @@ describe('Quiz Result routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/results/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .put('/api/results/not-int')
             .set(authHeader())
@@ -174,7 +195,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.updateQuizResult).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/results/:id validates payload', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/results/2')
             .set(authHeader())
@@ -188,7 +209,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.updateQuizResult).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/results/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         QuizResultService.updateQuizResult.mockRejectedValue(apiError(404, 'Quiz Result ID 50 not found'));
 
         const res = await request(app)
@@ -201,7 +222,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.updateQuizResult).toHaveBeenCalledWith('50', validResultPayload);
     });
 
-    test('PUT /api/results/:id updates result', async () => {
+    it('should update result', async () => {
         QuizResultService.updateQuizResult.mockResolvedValue({
             resultId: 2,
             ...validResultPayload,
@@ -217,15 +238,17 @@ describe('Quiz Result routes', () => {
         expect(res.body.message).toBe('Quiz result updated successfully');
         expect(QuizResultService.updateQuizResult).toHaveBeenCalledWith('2', validResultPayload);
     });
+});
 
-    test('DELETE /api/results/:id requires authentication', async () => {
+describe('Quiz Result routes – DELETE /api/results/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/results/1');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/results/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/results/abc')
             .set(authHeader());
@@ -234,7 +257,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.deleteQuizResult).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/results/:id handles not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         QuizResultService.deleteQuizResult.mockRejectedValue(apiError(404, 'Quiz Result ID 1 not found'));
 
         const res = await request(app)
@@ -246,7 +269,7 @@ describe('Quiz Result routes', () => {
         expect(QuizResultService.deleteQuizResult).toHaveBeenCalledWith('1');
     });
 
-    test('DELETE /api/results/:id deletes result', async () => {
+    it('should delete result', async () => {
         QuizResultService.deleteQuizResult.mockResolvedValue(undefined);
 
         const res = await request(app)

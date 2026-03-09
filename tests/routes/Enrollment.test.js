@@ -27,18 +27,19 @@ const validEnrollmentPayload = {
     status: 'enrolled',
 };
 
-describe('Enrollment routes', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
-    test('GET /api/enrollments requires authentication', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+describe('Enrollment routes – GET /api/enrollments', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/enrollments');
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/enrollments returns enrollments', async () => {
+    it('should return enrollments', async () => {
         EnrollmentService.getAllEnrollments.mockResolvedValue([
             { enrollmentId: 1, ...validEnrollmentPayload, enrolledAt: '2025-01-01' },
         ]);
@@ -52,14 +53,30 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.getAllEnrollments).toHaveBeenCalledTimes(1);
     });
 
-    test('GET /api/enrollments/:id requires authentication', async () => {
+    it('should return 500 when service fails', async () => {
+        EnrollmentService.getAllEnrollments.mockRejectedValue(new Error('Unexpected failure'));
+
+        const res = await request(app)
+            .get('/api/enrollments')
+            .set(authHeader());
+
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({
+            success: false,
+            message: 'Unexpected failure',
+        });
+    });
+});
+
+describe('Enrollment routes – GET /api/enrollments/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).get('/api/enrollments/2');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('GET /api/enrollments/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .get('/api/enrollments/not-int')
             .set(authHeader());
@@ -68,7 +85,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.getEnrollmentById).not.toHaveBeenCalled();
     });
 
-    test('GET /api/enrollments/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         EnrollmentService.getEnrollmentById.mockRejectedValue(apiError(404, 'Enrollment ID 20 not found'));
 
         const res = await request(app)
@@ -80,7 +97,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.getEnrollmentById).toHaveBeenCalledWith('20');
     });
 
-    test('GET /api/enrollments/:id returns enrollment', async () => {
+    it('should return enrollment', async () => {
         EnrollmentService.getEnrollmentById.mockResolvedValue({
             enrollmentId: 2,
             ...validEnrollmentPayload,
@@ -99,8 +116,10 @@ describe('Enrollment routes', () => {
         });
         expect(EnrollmentService.getEnrollmentById).toHaveBeenCalledWith('2');
     });
+});
 
-    test('POST /api/enrollments requires authentication', async () => {
+describe('Enrollment routes – POST /api/enrollments', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .post('/api/enrollments')
             .send(validEnrollmentPayload);
@@ -109,7 +128,7 @@ describe('Enrollment routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('POST /api/enrollments validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .post('/api/enrollments')
             .set(authHeader())
@@ -123,7 +142,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.createEnrollment).not.toHaveBeenCalled();
     });
 
-    test('POST /api/enrollments handles conflict', async () => {
+    it('should handle conflict', async () => {
         EnrollmentService.createEnrollment.mockRejectedValue(
             apiError(409, 'Student is already enrolled in this course')
         );
@@ -138,7 +157,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.createEnrollment).toHaveBeenCalledWith(validEnrollmentPayload);
     });
 
-    test('POST /api/enrollments creates enrollment', async () => {
+    it('should create enrollment', async () => {
         EnrollmentService.createEnrollment.mockResolvedValue({
             enrollmentId: 9,
             ...validEnrollmentPayload,
@@ -154,8 +173,10 @@ describe('Enrollment routes', () => {
         expect(res.body.message).toBe('Enrollment created successfully');
         expect(EnrollmentService.createEnrollment).toHaveBeenCalledWith(validEnrollmentPayload);
     });
+});
 
-    test('PUT /api/enrollments/:id requires authentication', async () => {
+describe('Enrollment routes – PUT /api/enrollments/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app)
             .put('/api/enrollments/1')
             .send(validEnrollmentPayload);
@@ -164,7 +185,7 @@ describe('Enrollment routes', () => {
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('PUT /api/enrollments/:id validates request', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/enrollments/not-int')
             .set(authHeader())
@@ -174,7 +195,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.updateEnrollment).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/enrollments/:id validates body', async () => {
+    it('should validate payload', async () => {
         const res = await request(app)
             .put('/api/enrollments/1')
             .set(authHeader())
@@ -188,7 +209,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.updateEnrollment).not.toHaveBeenCalled();
     });
 
-    test('PUT /api/enrollments/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         EnrollmentService.updateEnrollment.mockRejectedValue(apiError(404, 'Enrollment ID 33 not found'));
 
         const res = await request(app)
@@ -201,7 +222,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.updateEnrollment).toHaveBeenCalledWith('33', validEnrollmentPayload);
     });
 
-    test('PUT /api/enrollments/:id updates enrollment', async () => {
+    it('should update enrollment', async () => {
         EnrollmentService.updateEnrollment.mockResolvedValue({
             enrollmentId: 1,
             ...validEnrollmentPayload,
@@ -217,15 +238,17 @@ describe('Enrollment routes', () => {
         expect(res.body.message).toBe('Enrollment updated successfully');
         expect(EnrollmentService.updateEnrollment).toHaveBeenCalledWith('1', validEnrollmentPayload);
     });
+});
 
-    test('DELETE /api/enrollments/:id requires authentication', async () => {
+describe('Enrollment routes – DELETE /api/enrollments/:id', () => {
+    it('should require authentication', async () => {
         const res = await request(app).delete('/api/enrollments/1');
 
         expect(res.status).toBe(401);
         expect(res.body.message).toBe('Missing or invalid Authorization header');
     });
 
-    test('DELETE /api/enrollments/:id validates id', async () => {
+    it('should validate id parameter', async () => {
         const res = await request(app)
             .delete('/api/enrollments/abc')
             .set(authHeader());
@@ -234,7 +257,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.deleteEnrollment).not.toHaveBeenCalled();
     });
 
-    test('DELETE /api/enrollments/:id returns not found', async () => {
+    it('should return 404 when resource is not found', async () => {
         EnrollmentService.deleteEnrollment.mockRejectedValue(apiError(404, 'Enrollment ID 1 not found'));
 
         const res = await request(app)
@@ -246,7 +269,7 @@ describe('Enrollment routes', () => {
         expect(EnrollmentService.deleteEnrollment).toHaveBeenCalledWith('1');
     });
 
-    test('DELETE /api/enrollments/:id deletes enrollment', async () => {
+    it('should delete enrollment', async () => {
         EnrollmentService.deleteEnrollment.mockResolvedValue(undefined);
 
         const res = await request(app)
