@@ -25,16 +25,75 @@ The API listens on `http://localhost:<PORT>` (default **3000**).
 
 ---
 
+## Run with Docker
+
+This repository can run locally with two containers:
+
+- `backend` for the Node.js API
+- `db` for MariaDB 11.4
+
+The database data is stored in a persistent Docker volume named `mariadb_data`, so your data survives normal container restarts. On the very first startup, Docker automatically imports [`database/schema.sql`](database/schema.sql) into the MariaDB container.
+
+### First-time Docker setup
+
+PowerShell:
+
+```powershell
+Copy-Item .env.docker.example .env.docker
+docker compose --env-file .env.docker up --build
+```
+
+Git Bash / WSL:
+
+```bash
+cp .env.docker.example .env.docker
+docker compose --env-file .env.docker up --build
+```
+
+After the containers start, open `http://localhost:3000/api/health`.
+
+### Common Docker commands
+
+```powershell
+# Start in the background
+docker compose --env-file .env.docker up --build -d
+
+# Stop the containers
+docker compose --env-file .env.docker down
+
+# Show backend logs
+docker compose --env-file .env.docker logs -f backend
+
+# Show database logs
+docker compose --env-file .env.docker logs -f db
+
+# Rebuild after code changes
+docker compose --env-file .env.docker up --build -d
+
+# Remove containers and delete the database volume (full reset)
+docker compose --env-file .env.docker down -v
+```
+
+### Docker notes
+
+- The backend connects to MariaDB through Docker's internal network by using `DB_HOST=db`.
+- The database service has a health check, and the backend waits for a successful database connection before starting the API server.
+- Keep `DB_NAME=csis_228_project` unless you also update [`database/schema.sql`](database/schema.sql), because the current schema file creates and uses that database name directly.
+- The checked-in `.env.example` is older and does not fully match the running code and schema. The Docker setup follows the actual runtime values from the codebase and local `.env`, not the stale example file.
+
+---
+
 ## Environment Variables
 
 | Variable | Description | Default |
 |---|---|---|
 | `PORT` | Server port | `3000` |
 | `DB_HOST` | MariaDB host | `localhost` |
+| `DB_PORT` | MariaDB port | `3306` |
 | `DB_USER` | MariaDB user | `root` |
 | `DB_PASS` | MariaDB password | _(empty)_ |
 | `DB_NAME` | Database name | `csis_228_project` |
-| `DB_POOL_LIMIT` | Connection pool size | `5` |
+| `DB_POOL_LIMIT` | Connection pool size | `10` |
 | `JWT_SECRET` | Signing secret for tokens | _(required)_ |
 | `JWT_EXPIRES_IN` | Token lifetime | `1h` |
 | `JWT_ISSUER` | `iss` claim | `online-learning-api` |
