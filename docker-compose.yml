@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11.4
+    env_file:
+      - .env.docker
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-csis_228_project}
+      MARIADB_ROOT_HOST: "%"
+      MARIADB_ROOT_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "MARIADB_PWD=\"$$MARIADB_ROOT_PASSWORD\" mariadb-admin ping -h localhost -uroot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+volumes:
+  mariadb_data:
