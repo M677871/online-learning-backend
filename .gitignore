@@ -158,7 +158,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
-
+.env.docker
 # IDEs and editors
 /.idea
 .project
