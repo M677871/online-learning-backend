@@ -1,7 +1,19 @@
 const QuizQuestionService = require('../services/QuizQuestionService');
 const QuizQuestionDTO = require('../domain/dto/QuizQuestionDTO');
 
+const QuizQuestionService = require('../services/QuizQuestionService');
+const QuizQuestionDTO = require('../domain/dto/QuizQuestionDTO');
+
+/**
+ * Controller class managing HTTP requests for quiz questions.
+ */
 class QuizQuestionController {
+    /**
+     * Retrieves all quiz questions.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends a JSON response with an array of questions.
+     */
     static async getAll(req, res) {
         try {
             const questions = await QuizQuestionService.getAllQuizQuestions();
@@ -13,6 +25,12 @@ class QuizQuestionController {
         }
     }
 
+    /**
+     * Retrieves a single quiz question by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends a JSON response containing the quiz question.
+     */
     static async getById(req, res) {
         try {
             const question = await QuizQuestionService.getQuizQuestionById(req.params.id);
@@ -24,6 +42,12 @@ class QuizQuestionController {
         }
     }
 
+    /**
+     * Creates a new quiz question.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends a JSON response confirming creation.
+     */
     static async create(req, res) {
         try {
             const { quizId, questionText } = req.body;
@@ -36,6 +60,12 @@ class QuizQuestionController {
         }
     }
 
+    /**
+     * Updates an existing quiz question.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends a JSON response confirming the update.
+     */
     static async update(req, res) {
         try {
             const { quizId, questionText } = req.body;
@@ -48,6 +78,12 @@ class QuizQuestionController {
         }
     }
 
+    /**
+     * Deletes a quiz question by ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends a JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await QuizQuestionService.deleteQuizQuestion(req.params.id);

@@ -1,7 +1,16 @@
 const InstructorService = require('../services/InstructorService');
 const InstructorDTO = require('../domain/dto/InstructorDTO');
 
+/**
+ * Controller class to handle instructor profiling HTTP requests.
+ */
 class InstructorController {
+    /**
+     * Retrieves all instructor profiles.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the array of instructors.
+     */
     static async getAll(req, res) {
         try {
             const instructors = await InstructorService.getAllInstructors();
@@ -13,6 +22,12 @@ class InstructorController {
         }
     }
 
+    /**
+     * Retrieves a single instructor profile by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the instructor data.
+     */
     static async getById(req, res) {
         try {
             const instructor = await InstructorService.getInstructorById(req.params.id);
@@ -24,6 +39,12 @@ class InstructorController {
         }
     }
 
+    /**
+     * Creates a new instructor profile.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the created instructor data.
+     */
     static async create(req, res) {
         try {
             const { userId, insFName, insLName, bio, profilePicture } = req.body;
@@ -36,6 +57,12 @@ class InstructorController {
         }
     }
 
+    /**
+     * Updates an existing instructor profile.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the updated instructor data.
+     */
     static async update(req, res) {
         try {
             const { userId, insFName, insLName, bio, profilePicture } = req.body;
@@ -48,6 +75,12 @@ class InstructorController {
         }
     }
 
+    /**
+     * Deletes an instructor profile by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await InstructorService.deleteInstructor(req.params.id);
@@ -59,6 +92,12 @@ class InstructorController {
         }
     }
 
+    /**
+     * Retrieves a list of courses taught by the instructor.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the course list.
+     */
     static async getCourses(req, res) {
         try {
             const courses = await InstructorService.getInstructorCourses(req.params.id);

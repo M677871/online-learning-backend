@@ -1,7 +1,16 @@
 const CourseService = require('../services/CourseService');
 const CourseDTO = require('../domain/dto/CourseDTO');
 
+/**
+ * Controller class to handle course-related HTTP requests.
+ */
 class CourseController {
+    /**
+     * Retrieves all courses.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the array of courses.
+     */
     static async getAll(req, res) {
         try {
             const courses = await CourseService.getAllCourses();
@@ -13,6 +22,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Retrieves a single course by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the course data.
+     */
     static async getById(req, res) {
         try {
             const course = await CourseService.getCourseById(req.params.id);
@@ -24,6 +39,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Creates a new course.
+     * @param {import('express').Request} req - The Express request object containing course details in body.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the created course data.
+     */
     static async create(req, res) {
         try {
             const { instructorId, categorieId, courseName, description } = req.body;
@@ -36,6 +57,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Updates an existing course.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the updated course data.
+     */
     static async update(req, res) {
         try {
             const { instructorId, categorieId, courseName, description } = req.body;
@@ -48,6 +75,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Deletes a course by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await CourseService.deleteCourse(req.params.id);
@@ -59,6 +92,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Retrieves the instructor associated with a specific course.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the instructor data.
+     */
     static async getInstructorByCourseId(req, res) {
         try {
             const instructor = await CourseService.getInstructorByCourseId(req.params.id);
@@ -70,6 +109,12 @@ class CourseController {
         }
     }
 
+    /**
+     * Retrieves a list of students enrolled in a specific course.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing an array of student data.
+     */
     static async getStudentsOfCourse(req, res) {
         try {
             const students = await CourseService.getStudentsOfCourse(req.params.id);

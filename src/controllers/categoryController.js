@@ -1,7 +1,19 @@
 const CategoryService = require('../services/CategoryService');
 const CategoryDTO = require('../domain/dto/CategoryDTO');
 
+const CategoryService = require('../services/CategoryService');
+const CategoryDTO = require('../domain/dto/CategoryDTO');
+
+/**
+ * Controller class to handle category-related HTTP requests.
+ */
 class CategoryController {
+    /**
+     * Retrieves all categories.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing an array of categories.
+     */
     static async getAll(req, res) {
         try {
             const categories = await CategoryService.getAllCategories();
@@ -13,6 +25,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Retrieves a single category by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the category data.
+     */
     static async getById(req, res) {
         try {
             const category = await CategoryService.getCategoryById(req.params.id);
@@ -24,6 +42,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Creates a new category.
+     * @param {import('express').Request} req - The Express request object containing category configuration.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the newly created category.
+     */
     static async create(req, res) {
         try {
             const { categoryName, description } = req.body;
@@ -36,6 +60,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Updates an existing category.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response resolving to updated category data.
+     */
     static async update(req, res) {
         try {
             const { categoryName, description } = req.body;
@@ -48,6 +78,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Removes a category by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await CategoryService.deleteCategory(req.params.id);
@@ -59,6 +95,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Retrieves all courses associated with a given category.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the array of courses.
+     */
     static async getCourses(req, res) {
         try {
             const courses = await CategoryService.getCategoryCourses(req.params.id);
@@ -70,6 +112,12 @@ class CategoryController {
         }
     }
 
+    /**
+     * Retrieves all instructors associated with a given category.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the array of instructors.
+     */
     static async getInstructors(req, res) {
         try {
             const instructors = await CategoryService.getCategoryInstructors(req.params.id);

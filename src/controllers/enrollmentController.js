@@ -1,7 +1,19 @@
 const EnrollmentService = require('../services/EnrollmentService');
 const EnrollmentDTO = require('../domain/dto/EnrollmentDTO');
 
+const EnrollmentService = require('../services/EnrollmentService');
+const EnrollmentDTO = require('../domain/dto/EnrollmentDTO');
+
+/**
+ * Controller class to handle student enrollment HTTP requests.
+ */
 class EnrollmentController {
+    /**
+     * Retrieves all enrollments.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with array of enrollments.
+     */
     static async getAll(req, res) {
         try {
             const enrollments = await EnrollmentService.getAllEnrollments();
@@ -13,6 +25,12 @@ class EnrollmentController {
         }
     }
 
+    /**
+     * Retrieves a single enrollment by ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the enrollment data.
+     */
     static async getById(req, res) {
         try {
             const enrollment = await EnrollmentService.getEnrollmentById(req.params.id);
@@ -24,6 +42,12 @@ class EnrollmentController {
         }
     }
 
+    /**
+     * Creates a new course enrollment for a student.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming creation.
+     */
     static async create(req, res) {
         try {
             const { studentId, courseId, status } = req.body;
@@ -36,6 +60,12 @@ class EnrollmentController {
         }
     }
 
+    /**
+     * Updates an existing enrollment status.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with updated data.
+     */
     static async update(req, res) {
         try {
             const { studentId, courseId, status } = req.body;
@@ -48,6 +78,12 @@ class EnrollmentController {
         }
     }
 
+    /**
+     * Removes an enrollment record.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming removal.
+     */
     static async remove(req, res) {
         try {
             await EnrollmentService.deleteEnrollment(req.params.id);

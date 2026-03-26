@@ -1,7 +1,19 @@
 const CourseMaterialService = require('../services/CourseMaterialService');
 const CourseMaterialDTO = require('../domain/dto/CourseMaterialDTO');
 
+const CourseMaterialService = require('../services/CourseMaterialService');
+const CourseMaterialDTO = require('../domain/dto/CourseMaterialDTO');
+
+/**
+ * Controller class to handle course material HTTP requests.
+ */
 class CourseMaterialController {
+    /**
+     * Retrieves all course materials.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the array of course materials.
+     */
     static async getAll(req, res) {
         try {
             const materials = await CourseMaterialService.getAllCourseMaterials();
@@ -13,6 +25,12 @@ class CourseMaterialController {
         }
     }
 
+    /**
+     * Retrieves a single course material by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the course material data.
+     */
     static async getById(req, res) {
         try {
             const material = await CourseMaterialService.getCourseMaterialById(req.params.id);
@@ -24,6 +42,12 @@ class CourseMaterialController {
         }
     }
 
+    /**
+     * Creates a new course material.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the created course material data.
+     */
     static async create(req, res) {
         try {
             const { courseId, title, materialType, filePath } = req.body;
@@ -36,6 +60,12 @@ class CourseMaterialController {
         }
     }
 
+    /**
+     * Updates an existing course material.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the updated course material data.
+     */
     static async update(req, res) {
         try {
             const { courseId, title, materialType, filePath } = req.body;
@@ -48,6 +78,12 @@ class CourseMaterialController {
         }
     }
 
+    /**
+     * Deletes a course material by its ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await CourseMaterialService.deleteCourseMaterial(req.params.id);

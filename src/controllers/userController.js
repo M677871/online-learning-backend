@@ -1,7 +1,16 @@
 const UserService = require('../services/UserService');
 const UserDTO = require('../domain/dto/UserDTO');
 
+/**
+ * Controller class to handle user-related HTTP requests.
+ */
 class UserController {
+    /**
+     * Retrieves all users.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the users array.
+     */
     static async getAll(req, res) {
         try {
             const users = await UserService.getAllUsers();
@@ -13,6 +22,12 @@ class UserController {
         }
     }
 
+    /**
+     * Retrieves a user by their unique ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the user data.
+     */
     static async getById(req, res) {
         try {
             const user = await UserService.getUserById(req.params.id);
@@ -24,6 +39,12 @@ class UserController {
         }
     }
 
+    /**
+     * Retrieves a user by their email address.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the user data.
+     */
     static async getByEmail(req, res) {
         try {
             const user = await UserService.getUserByEmail(req.params.email);
@@ -35,6 +56,12 @@ class UserController {
         }
     }
 
+    /**
+     * Creates a new user.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the created user data.
+     */
     static async create(req, res) {
         try {
             const { email, password, userType } = req.body;
@@ -47,6 +74,12 @@ class UserController {
         }
     }
 
+    /**
+     * Updates an existing user's information.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response with the updated user data.
+     */
     static async update(req, res) {
         try {
             const { email, password, userType } = req.body;
@@ -59,6 +92,12 @@ class UserController {
         }
     }
 
+    /**
+     * Deletes a user by their ID.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming deletion.
+     */
     static async remove(req, res) {
         try {
             await UserService.deleteUser(req.params.id);
@@ -70,6 +109,12 @@ class UserController {
         }
     }
 
+    /**
+     * Authenticates a user and generates a login token.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response containing the auth token and user data.
+     */
     static async login(req, res) {
         try {
             const { email, password } = req.body;
@@ -82,6 +127,12 @@ class UserController {
         }
     }
 
+    /**
+     * Changes a user's password.
+     * @param {import('express').Request} req - The Express request object.
+     * @param {import('express').Response} res - The Express response object.
+     * @returns {Promise<void>} Sends JSON response confirming password change.
+     */
     static async changePassword(req, res) {
         try {
             const { email, currentPassword, newPassword } = req.body;
