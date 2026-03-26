@@ -1,7 +1,18 @@
 const pool = require('../../config/db');
 const Quiz = require('../entities/Quiz');
 
+/**
+ * Quiz repository for interacting with the database.
+ */
 class QuizRepository {
+    /**
+     * Creates a new quiz.
+     * @param {Object} params - Quiz creation parameters.
+     * @param {number} params.courseId - Course ID.
+     * @param {string} params.quizName - Quiz name.
+     * @param {string} params.quizDescription - Quiz description.
+     * @returns {Promise<number>} Returns the insert ID.
+     */
     static async createQuiz({ courseId, quizName, quizDescription }) {
         let conn;
         try {

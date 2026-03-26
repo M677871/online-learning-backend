@@ -1,7 +1,17 @@
 const pool = require('../../config/db');
 const Category = require('../entities/Category');
 
+/**
+ * Data access layer for Category entities.
+ */
 class CategoryRepository {
+    /**
+     * Inserts a new category into the database.
+     * @param {Object} params
+     * @param {string} params.categoryName - Name of the category.
+     * @param {string} params.description - Category description.
+     * @returns {Promise<number>} The ID of the newly created category.
+     */
     static async createCategory({ categoryName, description }) {
         let conn;
         try {
@@ -14,6 +24,11 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Retrieves a category by its ID.
+     * @param {number|string} categoryId - The ID of the category.
+     * @returns {Promise<Category|null>} A Category entity or null if not found.
+     */
     static async getCategoryById(categoryId) {
         let conn;
         try {
@@ -26,6 +41,10 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Retrieves all categories.
+     * @returns {Promise<Category[]>} Array of Category entities.
+     */
     static async getAllCategories() {
         let conn;
         try {
@@ -38,6 +57,14 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Updates an existing category's details.
+     * @param {number|string} categoryId - The category ID to update.
+     * @param {Object} params
+     * @param {string} params.categoryName - New category name.
+     * @param {string} params.description - New category description.
+     * @returns {Promise<number>} The number of affected rows.
+     */
     static async updateCategory(categoryId, { categoryName, description }) {
         let conn;
         try {
@@ -50,6 +77,11 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Deletes a category.
+     * @param {number|string} categoryId - The ID of the category to delete.
+     * @returns {Promise<number>} The number of affected rows.
+     */
     static async deleteCategory(categoryId) {
         let conn;
         try {
@@ -62,6 +94,11 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Checks if a category exists by its ID.
+     * @param {number|string} categoryId - The category ID.
+     * @returns {Promise<boolean>} True if the category exists.
+     */
     static async categoryExists(categoryId) {
         let conn;
         try {
@@ -74,6 +111,11 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Retrieves all courses assigned to a specific category.
+     * @param {number|string} categoryId - The category ID.
+     * @returns {Promise<Object[]>} Array of course records.
+     */
     static async getCategoryCourses(categoryId) {
         let conn;
         try {
@@ -86,6 +128,11 @@ class CategoryRepository {
         }
     }
 
+    /**
+     * Retrieves all distinct instructors who have courses in this category.
+     * @param {number|string} categoryId - The category ID.
+     * @returns {Promise<Object[]>} Array of instructor records.
+     */
     static async getCategoryInstructors(categoryId) {
         let conn;
         try {

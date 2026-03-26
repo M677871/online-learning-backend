@@ -1,7 +1,19 @@
 const pool = require('../../config/db');
 const Course = require('../entities/Course');
 
+/**
+ * Data access layer for Course entities.
+ */
 class CourseRepository {
+    /**
+     * Inserts a new course.
+     * @param {Object} params
+     * @param {number|string} params.instructorId - ID of the instructor.
+     * @param {number|string} params.categorieId - ID of the category.
+     * @param {string} params.courseName - The name of the course.
+     * @param {string} params.description - Course description.
+     * @returns {Promise<number>} The newly created course ID.
+     */
     static async createCourse({ instructorId, categorieId, courseName, description }) {
         let conn;
         try {
@@ -14,6 +26,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves a single course by its ID.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<Course|null>} The mapped course entity, or null.
+     */
     static async getCourseById(courseId) {
         let conn;
         try {
@@ -26,6 +43,10 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves all courses.
+     * @returns {Promise<Course[]>} Array of Course entities.
+     */
     static async getAllCourses() {
         let conn;
         try {
@@ -38,6 +59,16 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Updates an existing course.
+     * @param {number|string} courseId - The course ID to update.
+     * @param {Object} params
+     * @param {number|string} params.instructorId - New instructor ID.
+     * @param {number|string} params.categorieId - New category ID.
+     * @param {string} params.courseName - New course name.
+     * @param {string} params.description - New course description.
+     * @returns {Promise<number>} Affected rows count.
+     */
     static async updateCourse(courseId, { instructorId, categorieId, courseName, description }) {
         let conn;
         try {
@@ -50,6 +81,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Deletes a course.
+     * @param {number|string} courseId - The ID of the course.
+     * @returns {Promise<number>} Affected rows count.
+     */
     static async deleteCourse(courseId) {
         let conn;
         try {
@@ -62,6 +98,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Checks if a course exists by its ID.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<boolean>} True if found, false otherwise.
+     */
     static async courseExistsById(courseId) {
         let conn;
         try {
@@ -74,6 +115,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves the instructor assigned to a specific course.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<Object|null>} Instructor record or null.
+     */
     static async getInstructorByCourseId(courseId) {
         let conn;
         try {
@@ -88,6 +134,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves all students enrolled in a specific course.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<Object[]>} Array of student records.
+     */
     static async getStudentsOfCourse(courseId) {
         let conn;
         try {
@@ -102,6 +153,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves all courses assigned to a specific instructor.
+     * @param {number|string} instructorId - The instructor ID.
+     * @returns {Promise<Course[]>} Array of Course entities.
+     */
     static async getCoursesByInstructorId(instructorId) {
         let conn;
         try {
@@ -114,6 +170,11 @@ class CourseRepository {
         }
     }
 
+    /**
+     * Retrieves detailed information about all courses a student is enrolled in.
+     * @param {number|string} studentId - The student ID.
+     * @returns {Promise<Object[]>} Enrolled course details including instructor information.
+     */
     static async getStudentEnrolledCourses(studentId) {
         let conn;
         try {
