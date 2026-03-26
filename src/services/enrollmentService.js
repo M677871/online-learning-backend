@@ -3,7 +3,15 @@ const StudentRepository = require('../domain/repositories/StudentRepository');
 const CourseRepository = require('../domain/repositories/CourseRepository');
 const ApiError = require('../middlewares/ApiError');
 
+/**
+ * Service class handling enrollment-related business logic.
+ */
 class EnrollmentService {
+    /**
+     * Retrieves all student enrollments.
+     * @returns {Promise<Enrollment[]>} Array of Enrollment entities.
+     * @throws {Error} If a database error occurs.
+     */
     static async getAllEnrollments() {
         try {
             return await EnrollmentRepository.getAllEnrollments();
@@ -12,6 +20,12 @@ class EnrollmentService {
         }
     }
 
+    /**
+     * Retrieves an enrollment record by its ID.
+     * @param {number|string} id - The enrollment ID.
+     * @returns {Promise<Enrollment>} The enrollment entity.
+     * @throws {ApiError} If the enrollment is not found.
+     */
     static async getEnrollmentById(id) {
         try {
             const enrollment = await EnrollmentRepository.getEnrollmentById(id);
@@ -22,6 +36,15 @@ class EnrollmentService {
         }
     }
 
+    /**
+     * Creates a new enrollment record.
+     * @param {Object} data - Enrollment parameters.
+     * @param {number|string} data.studentId - Student ID.
+     * @param {number|string} data.courseId - Course ID.
+     * @param {string} [data.status] - Enrollment status.
+     * @returns {Promise<Enrollment>} The newly created enrollment entity.
+     * @throws {ApiError} If student or course is missing, or if student is already enrolled.
+     */
     static async createEnrollment(data) {
         try {
             if (!(await StudentRepository.studentExists(data.studentId))) {
@@ -40,6 +63,16 @@ class EnrollmentService {
         }
     }
 
+    /**
+     * Updates an existing enrollment record.
+     * @param {number|string} id - The enrollment ID.
+     * @param {Object} data - The update payload.
+     * @param {number|string} data.studentId - Updated student ID.
+     * @param {number|string} data.courseId - Updated course ID.
+     * @param {string} data.status - Updated status.
+     * @returns {Promise<Enrollment>} The updated enrollment entity.
+     * @throws {ApiError} If enrollment, student, or course does not exist.
+     */
     static async updateEnrollment(id, data) {
         try {
             if (!(await EnrollmentRepository.enrollmentExists(id))) {
@@ -58,6 +91,12 @@ class EnrollmentService {
         }
     }
 
+    /**
+     * Deletes an enrollment record.
+     * @param {number|string} id - The enrollment ID to delete.
+     * @returns {Promise<void>}
+     * @throws {ApiError} If the enrollment does not exist.
+     */
     static async deleteEnrollment(id) {
         try {
             if (!(await EnrollmentRepository.enrollmentExists(id))) {

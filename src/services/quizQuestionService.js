@@ -2,7 +2,19 @@ const QuizQuestionRepository = require('../domain/repositories/QuizQuestionRepos
 const QuizRepository = require('../domain/repositories/QuizRepository');
 const ApiError = require('../middlewares/ApiError');
 
+const QuizQuestionRepository = require('../domain/repositories/QuizQuestionRepository');
+const QuizRepository = require('../domain/repositories/QuizRepository');
+const ApiError = require('../middlewares/ApiError');
+
+/**
+ * Service class handling logic for quiz questions.
+ */
 class QuizQuestionService {
+    /**
+     * Retrieves all quiz questions.
+     * @returns {Promise<Array<Object>>} List of question objects.
+     * @throws {Error} If retrieval fails.
+     */
     static async getAllQuizQuestions() {
         try {
             return await QuizQuestionRepository.getAllQuizQuestions();
@@ -11,6 +23,12 @@ class QuizQuestionService {
         }
     }
 
+    /**
+     * Retrieves a quiz question by ID.
+     * @param {number|string} id - The ID of the question.
+     * @returns {Promise<Object>} The question object.
+     * @throws {ApiError} 404 if not found.
+     */
     static async getQuizQuestionById(id) {
         try {
             const q = await QuizQuestionRepository.getQuizQuestionById(id);
@@ -21,6 +39,14 @@ class QuizQuestionService {
         }
     }
 
+    /**
+     * Creates a new quiz question.
+     * @param {Object} data - Question details.
+     * @param {number|string} data.quizId - Associated quiz ID.
+     * @param {string} data.questionText - The text for the question.
+     * @returns {Promise<Object>} The newly created question.
+     * @throws {ApiError} 404 if the associated quiz does not exist.
+     */
     static async createQuizQuestion(data) {
         try {
             if (!(await QuizRepository.quizExists(data.quizId))) {
@@ -33,6 +59,14 @@ class QuizQuestionService {
         }
     }
 
+    /**
+     * Updates an existing quiz question.
+     * @param {number|string} id - The question ID.
+     * @param {Object} data - Update details.
+     * @param {string} [data.questionText] - The new text for the question.
+     * @returns {Promise<Object>} The updated question.
+     * @throws {ApiError} 404 if the question is not found.
+     */
     static async updateQuizQuestion(id, data) {
         try {
             if (!(await QuizQuestionRepository.questionExists(id))) {
@@ -45,6 +79,12 @@ class QuizQuestionService {
         }
     }
 
+    /**
+     * Deletes a quiz question by ID.
+     * @param {number|string} id - The question ID.
+     * @returns {Promise<void>} Resolves when deleted.
+     * @throws {ApiError} 404 if the question is not found.
+     */
     static async deleteQuizQuestion(id) {
         try {
             if (!(await QuizQuestionRepository.questionExists(id))) {

@@ -3,7 +3,15 @@ const InstructorRepository = require('../domain/repositories/InstructorRepositor
 const CategoryRepository = require('../domain/repositories/CategoryRepository');
 const ApiError = require('../middlewares/ApiError');
 
+/**
+ * Service class handling course-related business logic.
+ */
 class CourseService {
+    /**
+     * Retrieves all courses.
+     * @returns {Promise<Course[]>} A promise resolving to an array of course entities.
+     * @throws {Error} If a database error occurs.
+     */
     static async getAllCourses() {
         try {
             return await CourseRepository.getAllCourses();
@@ -12,6 +20,12 @@ class CourseService {
         }
     }
 
+    /**
+     * Retrieves a single course by its ID.
+     * @param {number|string} id - The course ID.
+     * @returns {Promise<Course>} A promise resolving to the course entity.
+     * @throws {ApiError} If the course is not found.
+     */
     static async getCourseById(id) {
         try {
             const course = await CourseRepository.getCourseById(id);
@@ -22,6 +36,16 @@ class CourseService {
         }
     }
 
+    /**
+     * Creates a new course after validating instructor and category existence.
+     * @param {Object} data - The course data.
+     * @param {number|string} data.instructorId - The ID of the instructor teaching the course.
+     * @param {number|string} data.categorieId - The ID of the primary category.
+     * @param {string} data.courseName - Name of the course.
+     * @param {string} data.description - Description of the course.
+     * @returns {Promise<Course>} A promise resolving to the created course entity.
+     * @throws {ApiError} If the instructor or category does not exist.
+     */
     static async createCourse(data) {
         try {
             if (!(await InstructorRepository.instructorExists(data.instructorId))) {
@@ -37,6 +61,17 @@ class CourseService {
         }
     }
 
+    /**
+     * Updates an existing course after validating its ID, instructor, and category.
+     * @param {number|string} id - The course ID to update.
+     * @param {Object} data - The updated course data.
+     * @param {number|string} data.instructorId - The ID of the instructor.
+     * @param {number|string} data.categorieId - The ID of the category.
+     * @param {string} data.courseName - Updated course name.
+     * @param {string} data.description - Updated course description.
+     * @returns {Promise<Course>} A promise resolving to the updated course entity.
+     * @throws {ApiError} If the course, instructor, or category does not exist.
+     */
     static async updateCourse(id, data) {
         try {
             if (!(await CourseRepository.courseExistsById(id))) {
@@ -55,6 +90,12 @@ class CourseService {
         }
     }
 
+    /**
+     * Deletes a course.
+     * @param {number|string} id - The course ID.
+     * @returns {Promise<void>}
+     * @throws {ApiError} If the course does not exist.
+     */
     static async deleteCourse(id) {
         try {
             if (!(await CourseRepository.courseExistsById(id))) {
@@ -66,6 +107,12 @@ class CourseService {
         }
     }
 
+    /**
+     * Retrieves the instructor details associated with a course.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<Object>} Instructor details.
+     * @throws {ApiError} If the course does not exist.
+     */
     static async getInstructorByCourseId(courseId) {
         try {
             if (!(await CourseRepository.courseExistsById(courseId))) {
@@ -77,6 +124,12 @@ class CourseService {
         }
     }
 
+    /**
+     * Retrieves all students enrolled in a specific course.
+     * @param {number|string} courseId - The course ID.
+     * @returns {Promise<Object[]>} List of students enrolled in the course.
+     * @throws {ApiError} If the course does not exist.
+     */
     static async getStudentsOfCourse(courseId) {
         try {
             if (!(await CourseRepository.courseExistsById(courseId))) {
