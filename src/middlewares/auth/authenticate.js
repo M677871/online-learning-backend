@@ -1,6 +1,16 @@
 const { verifyAccessToken } = require('../../config/jwt');
 const ApiError = require('../ApiError');
 
+/**
+ * Express middleware to authenticate a user using a JWT access token.
+ * Extracts the Bearer token from the Authorization header, verifies it,
+ * and attaches the decoded user payload to the request object.
+ * 
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ * @param {import('express').NextFunction} next - The Express next middleware callback.
+ * @throws {ApiError} If the Authorization header is missing, invalid, or the token is expired/invalid.
+ */
 const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
